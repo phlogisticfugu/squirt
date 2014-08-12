@@ -1,0 +1,17 @@
+{
+    "name": "phlogisticfugu/squirt",
+    "type": "library",
+    "description": "Simple and lightweight PHP dependancy injection",
+    "license": "MIT",
+    "require": {
+    	"php": ">=5.4",
+    	"psr/log": "~1.0",
+    	"doctrine/cache": "~1.3.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.2"
+    },
+    "autoload": {
+    	"psr-0": {"Squirt\\": "src/"}
+    }
+}
