@@ -1,7 +1,7 @@
 squirt
 ======
 
-Simple and performant/lightweight PHP dependency injection.
+Simple and lightweight PHP dependency injection.
 
 It is inspired by the ServiceBuilder in [Guzzle](https://github.com/guzzle/guzzle3),
 but simplifies and improves upon that.  The ServiceBuilder was also removed in Guzzle 4.
