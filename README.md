@@ -118,6 +118,19 @@ run_nonsquirt.php - squirt-compatible class can be run without squirt
 
     $app->run();
 
+Installation
+------------
+
+Install squirt using [composer](https://getcomposer.org/).  Create a file named composer.json
+
+    {
+        "require": {
+            "phlogisticfugu/squirt": "~1.0"
+        }
+    }
+
+then follow the installation instructions for composer.
+
 Features
 --------
 
