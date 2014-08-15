@@ -1,7 +1,7 @@
 {
     "name": "phlogisticfugu/squirt",
     "type": "library",
-    "description": "Simple and lightweight PHP dependancy injection",
+    "description": "Simple and lightweight PHP dependency injection",
     "license": "MIT",
     "require": {
     	"php": ">=5.4",
