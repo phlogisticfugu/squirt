@@ -12,6 +12,6 @@
         "phpunit/phpunit": "~4.2"
     },
     "autoload": {
-    	"psr-0": {"Squirt\\": "src/"}
+    	"psr-0": {"Squirt\\": "squirt/src/"}
     }
 }

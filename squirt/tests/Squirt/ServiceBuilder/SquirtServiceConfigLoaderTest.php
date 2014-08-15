@@ -133,10 +133,14 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testLoadFile(SquirtServiceConfigLoader $squirtServiceConfigLoader)
     {
+
+        $configFileName = SQUIRT_TEST_DIR
+            . join(DIRECTORY_SEPARATOR, array('', '_config', 'test_config.php'));
+        
         /*
          * Try an initial load (noting that this is stored in the cache)
          */
-        $serviceConfig = $squirtServiceConfigLoader->loadFile('./tests/_config/test_config.php');
+        $serviceConfig = $squirtServiceConfigLoader->loadFile($configFileName);
         $this->assertTrue(is_array($serviceConfig), 'loadFile returns an array');
         $this->assertEquals(array(
             'TEST' => array(
@@ -147,7 +151,7 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
         /*
          * Try a second load, using the cache
          */
-        $serviceConfig = $squirtServiceConfigLoader->loadFile('./tests/_config/test_config.php');
+        $serviceConfig = $squirtServiceConfigLoader->loadFile($configFileName);
         $this->assertTrue(is_array($serviceConfig), 'loadFile returns an array');
         $this->assertEquals(array(
             'TEST' => array(
@@ -162,12 +166,14 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testLoadFileCircular(SquirtServiceConfigLoader $squirtServiceConfigLoader)
     {
+        $configFileName = SQUIRT_TEST_DIR
+            . join(DIRECTORY_SEPARATOR, array('', '_config', 'circular_reference_config.php'));
+        
         /*
          * Test an invalid config file with a circular reference
          * which should throw a RuntimeException
          */
-        $serviceConfig = $squirtServiceConfigLoader->loadFile(
-            './tests/_config/circular_reference_config.php');
+        $serviceConfig = $squirtServiceConfigLoader->loadFile($configFileName);
         $this->assertTrue(is_array($serviceConfig), 'loadFile returns an array');
     }
 }
