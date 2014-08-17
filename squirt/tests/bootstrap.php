@@ -7,4 +7,3 @@ define('SQUIRT_TEST_DIR', realpath(__DIR__));
 
 require __DIR__ . '/../../vendor/autoload.php';
 
-echo "SQUIRT_TEST_DIR" . SQUIRT_TEST_DIR . "\n";
