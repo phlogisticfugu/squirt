@@ -2,4 +2,5 @@
 <buildpath>
 	<buildpathentry kind="src" path=""/>
 	<buildpathentry kind="con" path="org.eclipse.php.core.LANGUAGE"/>
+	<buildpathentry combineaccessrules="false" kind="prj" path="/squirt-vendor"/>
 </buildpath>
