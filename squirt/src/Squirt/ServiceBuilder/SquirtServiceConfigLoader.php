@@ -38,70 +38,21 @@ class SquirtServiceConfigLoader implements SquirtableInterface
     
     /**
      * Load configuration from an array with keys
-     * 
+     *
      * includes - an array of file names to load from
      * prefix - an optional prefix added to all service names
      * services - an associative array of service configurations
-     * 
+     *
      * @param array $params
      * @param array $loadedFileNameArray
      * @throws InvalidArgumentException
      * @return multitype:Ambigous <multitype:, array>
      */
-    public function loadConfig(array $params, $loadedFileNameArray=array())
+    public function loadConfig(array $params)
     {
-        $serviceConfig = array();
-        
-        /*
-         * Load any includes
-         */
-        if (isset($params['includes'])) {
-            if (is_array($params['includes'])) {
-                foreach ($params['includes'] as $fileName) {
-                    
-                    /*
-                     * Recursively load configurations, permitting later
-                     * includes to override earlier ones, even if the service
-                     * names collide
-                     */
-                    $serviceConfig = array_replace_recursive(
-                        $serviceConfig,
-                        $this->loadFile($fileName, $loadedFileNameArray));
-                }
-                
-            } else {
-                throw new InvalidArgumentException('includes must be an array');
-            }
-        }
-        
-        /*
-         * Apply any prefixing to finalize the names of our services
-         */
-        if (isset($params['services'])) {
-            $serviceConfig = array_replace_recursive(
-                $serviceConfig,
-                $this->applyPrefix($params));
-        }
-        
-        if (empty($params['prefix'])) {
-            $prefix = '';
-        } else {
-            $prefix = $params['prefix'];
-        }
-        
-        /*
-         * Implement any extending of services
-         */
-        $outServiceConfig = array();
-        foreach (array_keys($serviceConfig) as $serviceName) {
-            $config = $this->applyServiceExtension($serviceName, $serviceConfig, $prefix);
-            
-            $outServiceConfig[$serviceName] = $config;
-        }
-        
-        return $outServiceConfig;
+        return $this->actuallyLoadConfig($params, array());
     }
-    
+        
     /**
      * Load service configuration from a file
      * 
@@ -110,7 +61,66 @@ class SquirtServiceConfigLoader implements SquirtableInterface
      * @throws InvalidArgumentException
      * @return array
      */
-    public function loadFile($fileName, $loadedFileNameArray=array())
+    public function loadFile($fileName)
+    {
+        return $this->actuallyLoadFile($fileName, array());
+    }
+    
+    protected function actuallyLoadConfig(array $params, array $loadedFileNameArray)
+    {
+        $serviceConfig = array();
+    
+        /*
+         * Load any includes
+        */
+        if (isset($params['includes'])) {
+            if (is_array($params['includes'])) {
+                foreach ($params['includes'] as $fileName) {
+    
+                    /*
+                     * Recursively load configurations, permitting later
+                    * includes to override earlier ones, even if the service
+                    * names collide
+                    */
+                    $serviceConfig = array_replace_recursive(
+                        $serviceConfig,
+                        $this->actuallyLoadFile($fileName, $loadedFileNameArray));
+                }
+    
+            } else {
+                throw new InvalidArgumentException('includes must be an array');
+            }
+        }
+    
+        /*
+         * Apply any prefixing to finalize the names of our services
+        */
+        if (isset($params['services'])) {
+            $serviceConfig = array_replace_recursive(
+                $serviceConfig,
+                $this->applyPrefix($params));
+        }
+    
+        if (empty($params['prefix'])) {
+            $prefix = '';
+        } else {
+            $prefix = $params['prefix'];
+        }
+    
+        /*
+         * Implement any extending of services
+        */
+        $outServiceConfig = array();
+        foreach (array_keys($serviceConfig) as $serviceName) {
+            $config = $this->applyServiceExtension($serviceName, $serviceConfig, $prefix);
+    
+            $outServiceConfig[$serviceName] = $config;
+        }
+    
+        return $outServiceConfig;
+    }
+    
+    protected function actuallyLoadFile($fileName, array $loadedFileNameArray)
     {
         
         if (false !== array_search($fileName, $loadedFileNameArray)) {
@@ -128,16 +138,16 @@ class SquirtServiceConfigLoader implements SquirtableInterface
          * Use any caching we can to fetch parameters
          */
         if ($this->cache->contains($fileName)) {
-            $params = $this->cache->fetch($fileName);
+            $params = json_decode($this->cache->fetch($fileName), true);
             
         } else {
             $params = require $fileName;
-            $this->cache->save($fileName, $params);
+            $this->cache->save($fileName, json_encode($params));
         }
         
         $loadedFileNameArray[] = $fileName;
         
-        return $this->loadConfig($params, $loadedFileNameArray);
+        return $this->actuallyLoadConfig($params, $loadedFileNameArray);
     }
     
     /**
