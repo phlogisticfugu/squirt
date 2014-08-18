@@ -52,6 +52,8 @@ app_config.php - squirt config file
             )
         )
     );
+\* Note that there is no code in the configuration, but it does permit comments
+
 
 MyApp\App.php - squirt-compatible class
 
@@ -84,6 +86,8 @@ MyApp\App.php - squirt-compatible class
             $this->logger->info('Got result: ' . $result);
         }
     }
+
+\* Note that there is no configuration in the code
 
 run.php - normal squirt service-consuming script
 
