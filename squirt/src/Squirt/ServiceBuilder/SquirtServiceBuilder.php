@@ -6,6 +6,7 @@ use \RuntimeException;
 use Squirt\Exception\NoSuchServiceException;
 use Squirt\Common\SquirtableInterface;
 use Squirt\Common\SquirtableTrait;
+use Squirt\Common\SquirtUtil;
 use Squirt\ServiceBuilder\SquirtServiceConfigLoader;
 
 /**
@@ -38,17 +39,15 @@ class SquirtServiceBuilder implements SquirtableInterface
     
     protected function __construct(array $params)
     {
-        if (isset($params['squirtServiceConfigLoader'])) {
-            if ($params['squirtServiceConfigLoader'] instanceof SquirtServiceConfigLoader) {
-                $this->squirtServiceConfigLoader = $params['squirtServiceConfigLoader'];
-            } else {
-                throw new InvalidArgumentException('invalid squirtServiceConfigLoader');
-            }
-        } else {
-            $this->squirtServiceConfigLoader = SquirtServiceConfigLoader::factory($params);
-        }
         
-        $this->serviceConfig = array();
+        $this->squirtServiceConfigLoader = SquirtUtil::validateParamClassWithDefault(
+            'squirtServiceConfigLoader',
+            'Squirt\ServiceBuilder\SquirtServiceConfigLoader',
+            $params,
+            function() use ($params) {
+                return SquirtServiceConfigLoader::factory($params);
+            }
+        );
         
         /*
          * Load any file based configuration

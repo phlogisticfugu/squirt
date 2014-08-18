@@ -19,7 +19,7 @@ Why squirt?
   (e.g. a Logger and a Doctrine DBALConnection), squirt service extensions and config file inclusion
   let you keep that configuration in one place, instead of scattering it around the codebase.
   Configurations also cascade, permitting the setting of defaults at multiple levels.
-* Uses "simple" PHP.  No annotations, no YAML/XML, no closures, no reflection.  Squirt config files
+* Uses "simple" PHP.  No annotations, no YAML/XML, no reflection.  Squirt config files
   are PHP files, so your IDE can already handle them, and opcode caches already optimize them.
   One can even use squirt-compatible classes without using squirt configurations/service builders,
   so that your squirt-compatible library can be used in frameworks that don't use squirt.

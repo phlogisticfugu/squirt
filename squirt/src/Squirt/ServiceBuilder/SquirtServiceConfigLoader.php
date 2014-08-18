@@ -8,6 +8,7 @@ use Doctrine\Common\Cache\ArrayCache;
 use Squirt\Exception\NoSuchServiceException;
 use Squirt\Common\SquirtableInterface;
 use Squirt\Common\SquirtableLoggingTrait;
+use Squirt\Common\SquirtUtil;
 
 /**
  * This class is used to deal with the loading and processing
@@ -24,16 +25,15 @@ class SquirtServiceConfigLoader implements SquirtableInterface
     
     protected function __construct(array $params)
     {
-        if (array_key_exists('cache', $params)) {
-            if ($params['cache'] instanceof Cache) {
-                $this->cache = $params['cache'];
-            } else {
-                throw new InvalidArgumentException(
-                    'cache must be Doctrine\Common\Cache\Cache');
+        
+        $this->cache = SquirtUtil::validateParamClassWithDefault(
+            'cache',
+            'Doctrine\Common\Cache\Cache',
+            $params,
+            function() {
+                return new ArrayCache();
             }
-        } else {
-            $this->cache = new ArrayCache();
-        }
+        );
     }
     
     /**
