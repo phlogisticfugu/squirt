@@ -55,6 +55,53 @@ app_config.php - squirt config file
 
 \* Note that there is no code in the configuration.  And configuration permits comments
 
+MyApp\App.php - squirt-compatible end-user class
+
+    namespace MyApp;
+    
+    use Squirt\Common\SquirtableInterface;
+    use Squirt\Common\SquirtableTrait;
+    use Squirt\Common\SquirtUtil;
+ 
+    class App implements SquirtableInterface
+    {
+        use SquirtableTrait;
+
+        private $logger;
+
+        private $client;
+
+        private $url;
+
+        protected function __construct(array $params)
+        {
+            /*
+             * Validate values from the $params and set them in our instance.
+             *
+             * This is the equivalent of adding validation to:
+             * $this->logger = $params['logger'];
+             * $this->client = $params['client'];
+             * $this->url = $params['url'];
+             */
+            $this->logger =
+                SquirtUtil::validateParamClass('logger', 'Monolog\Logger', $params);
+
+            $this->client =
+                SquirtUtil::validateParamClass('client', 'GuzzleHttp\Client', $params);
+
+            $this->url = SquirtUtil::validateParam('url', $params);
+        }
+
+        public function run()
+        {
+            $response = $this->client->get($this->url);           
+
+            $this->logger->info('Got result: ' . $response->getBody());
+        }
+    }
+
+\* Note that there is no configuration in the code, for proper separation
+
 MyApp\Logger.php - squirt-compatible wrapper for a Monolog Logger
 
     namespace MyApp;
@@ -89,49 +136,6 @@ MyApp\GuzzleClient - squirt-compatible wrapper for a Guzzle 4 Client
     {
         use Squirt\Common\SquirtableTrait;
     }
-
-MyApp\App.php - squirt-compatible end-user class
-
-    namespace MyApp;
-    
-    use Squirt\Common\SquirtableInterface;
-    use Squirt\Common\SquirtableTrait;
-    use Squirt\Common\SquirtUtil;
- 
-    class App implements SquirtableInterface
-    {
-        use SquirtableTrait;
-
-        private $logger;
-
-        private $client;
-
-        private $url;
-
-        protected function __construct(array $params)
-        {
-            /*
-             * Validate values from the $params and set them in our instance.
-             * This is the equivalent of adding validation to:
-             *
-             * $this->logger = $params['logger'];
-             * $this->client = $params['client'];
-             * $this->url = $params['url'];
-             */
-            $this->logger = SquirtUtil::validateParamClass('logger', 'Monolog\Logger', $params);
-            $this->client = SquirtUtil::validateParamClass('client', 'GuzzleHttp\Client', $params);
-            $this->url = SquirtUtil::validateParam('url', $params);
-        }
-
-        public function run()
-        {
-            $response = $this->client->get($this->url);           
-
-            $this->logger->info('Got result: ' . $response->getBody());
-        }
-    }
-
-\* Note that there is no configuration in the code
 
 run.php - normal squirt service-consuming script
 
