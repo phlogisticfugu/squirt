@@ -39,29 +39,64 @@ app_config.php - squirt config file
                     'logFile' => '/var/log/app.log'
                 )
             ),
+            'GUZZLE_CLIENT' => array(
+                'class' => 'MyApp\GuzzleClient'
+            ),
             'APP' => array(
                 'class' => 'MyApp\App',
                 'params' => array(
-                    // note that the logger is injected as a dependency
-                    // and need not be reconfigured with its logFile
                     'logger' => '{LOGGER}',
-
-                    // configure any strings/numbers in the config
+                    'client' => '{GUZZLE_CLIENT}',
                     'url' => 'https://github.com'
                 )
             )
         )
     );
-\* Note that there is no code in the configuration, but it does permit comments
 
+\* Note that there is no code in the configuration.  And configuration permits comments
 
-MyApp\App.php - squirt-compatible class
+MyApp\Logger.php - squirt-compatible wrapper for a Monolog Logger
+
+    namespace MyApp;
+
+    use Squirt\Common\SquirtableInterface;
+    use Squirt\Common\SquirtUtil;
+    use Monolog\Logger as MonologLogger;
+    use Monolog\Handler\StreamHandler;
+
+    class Logger extends MonologLogger implements SquirtableInterface
+    {
+        public static function factory(array $params=array())
+        {
+            $logFile = SquirtUtil::validateParam('logFile', $params);
+
+            $instance = new static();
+            $instance->pushHandler(new StreamHandler($logFile));
+
+            return $instance;
+        }
+    }
+
+MyApp\GuzzleClient - squirt-compatible wrapper for a Guzzle 4 Client
+
+    namespace MyApp;
+
+    use Squirt\Common\SquirtableInterface;
+    use Squirt\Common\SquirtableTrait;
+    use GuzzleHttp\Client;
+
+    class GuzzleClient extends Client implements SquirtableInterface
+    {
+        use Squirt\Common\SquirtableTrait;
+    }
+
+MyApp\App.php - squirt-compatible end-user class
 
     namespace MyApp;
     
     use Squirt\Common\SquirtableInterface;
     use Squirt\Common\SquirtableTrait;
-    use MyApp\Logger;
+    use Squirt\Common\SquirtUtil;
  
     class App implements SquirtableInterface
     {
@@ -69,21 +104,30 @@ MyApp\App.php - squirt-compatible class
 
         private $logger;
 
+        private $client;
+
         private $url;
 
         protected function __construct(array $params)
         {
-            $this->logger = $params['logger'];
-            $this->url = $params['url'];
+            /*
+             * Validate values from the $params and set them in our instance.
+             * This is the equivalent of adding validation to:
+             *
+             * $this->logger = $params['logger'];
+             * $this->client = $params['client'];
+             * $this->url = $params['url'];
+             */
+            $this->logger = SquirtUtil::validateParamClass('logger', 'Monolog\Logger', $params);
+            $this->client = SquirtUtil::validateParamClass('client', 'GuzzleHttp\Client', $params);
+            $this->url = SquirtUtil::validateParam('url', $params);
         }
 
         public function run()
         {
-            $ch = curl_init($this->url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            $result = curl_exec($ch);            
+            $response = $this->client->get($this->url);           
 
-            $this->logger->info('Got result: ' . $result);
+            $this->logger->info('Got result: ' . $response->getBody());
         }
     }
 
@@ -103,10 +147,11 @@ run.php - normal squirt service-consuming script
 
     $app->run();
 
-run_nonsquirt.php - squirt-compatible class can be run without squirt
+run_nonsquirt.php - squirt-compatible classes can be run even without squirt if necessary
 
     use MyApp\App;
     use MyApp\Logger;
+    use MyApp\GuzzleClient;
 
     require 'vendor/autoload.php'; // Composer class autoloader
 
@@ -115,8 +160,11 @@ run_nonsquirt.php - squirt-compatible class can be run without squirt
         'logFile' => '/var/log/app.log'
     ));
 
+    $client = GuzzleClient::factory();
+
     $app = App::factory(array(
         'logger' => $logger,
+        'client' => $client,
         'url' => 'https://github.com'
     ));
 
