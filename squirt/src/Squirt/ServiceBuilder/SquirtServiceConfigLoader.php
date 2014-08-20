@@ -130,24 +130,29 @@ class SquirtServiceConfigLoader implements SquirtableInterface
             return array();
         }
         
+        /*
+         * Use any cached value we can
+         */
+        if ($this->cache->contains($fileName)) {
+            return json_decode($this->cache->fetch($fileName), true);
+        }
+        
         if (! file_exists($fileName)) {
             throw new InvalidArgumentException('File does not exist: ' . $fileName);
         }
         
-        /*
-         * Use any caching we can to fetch parameters
-         */
-        if ($this->cache->contains($fileName)) {
-            $params = json_decode($this->cache->fetch($fileName), true);
-            
-        } else {
-            $params = require $fileName;
-            $this->cache->save($fileName, json_encode($params));
-        }
-        
+        $params = require $fileName;
+                
         $loadedFileNameArray[] = $fileName;
         
-        return $this->actuallyLoadConfig($params, $loadedFileNameArray);
+        $serviceConfig = $this->actuallyLoadConfig($params, $loadedFileNameArray);
+        
+        /*
+         * Cache this serviceConfig
+         */
+        $this->cache->save($fileName, json_encode($serviceConfig));
+        
+        return $serviceConfig;
     }
     
     /**
