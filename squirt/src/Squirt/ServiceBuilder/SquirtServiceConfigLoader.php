@@ -123,6 +123,13 @@ class SquirtServiceConfigLoader implements SquirtableInterface
     protected function actuallyLoadFile($fileName, array $loadedFileNameArray)
     {
         
+        /*
+         * Handle the case where we might run into infinite recursion
+         * if an include file contains a file that includes itself
+         * 
+         * When we encounter this, at the bottom of the search, return
+         * an empty array to stop the infinite loop
+         */
         if (false !== array_search($fileName, $loadedFileNameArray)) {
             if (isset($this->logger)) {
                 $this->logger->warn('Ignoring circular include file reference: ' . $fileName);
