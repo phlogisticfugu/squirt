@@ -1,8 +1,8 @@
 <?php
 namespace Squirt\ServiceBuilder;
 
-use \InvalidArgumentException;
-use \RuntimeException;
+use InvalidArgumentException;
+use RuntimeException;
 use Squirt\Exception\NoSuchServiceException;
 use Squirt\Common\SquirtableInterface;
 use Squirt\Common\SquirtableTrait;

@@ -1,8 +1,8 @@
 <?php
 namespace Squirt\ServiceBuilder;
 
-use \InvalidArgumentException;
-use \RuntimeException;
+use InvalidArgumentException;
+use RuntimeException;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\Cache\ArrayCache;
 use Squirt\Exception\NoSuchServiceException;

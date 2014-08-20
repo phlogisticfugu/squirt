@@ -7,6 +7,8 @@ use Psr\Log\LoggerAwareTrait;
 
 /**
  * This trait implements the SquirtableLoggingInterface
+ * and can be used wherever one needs to create a Squirt-compatible
+ * class that also uses a Logger
  */
 trait SquirtableLoggingTrait
 {
