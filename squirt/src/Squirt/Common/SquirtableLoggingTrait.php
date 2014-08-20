@@ -1,7 +1,7 @@
 <?php
 namespace Squirt\Common;
 
-use \InvalidArgumentException;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerAwareTrait;
 
