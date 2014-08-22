@@ -4,6 +4,7 @@ namespace Squirt\Ext\Doctrine\Common\Cache;
 use InvalidArgumentException;
 use Doctrine\Common\Cache\PhpFileCache as DoctrinePhpFileCache;
 use Squirt\Common\SquirtableInterface;
+use Squirt\Common\SquirtUtil;
 
 /**
  * Provide a Squirt-compatible instance of the Doctrine PhpFileCache
@@ -22,28 +23,17 @@ class PhpFileCache extends DoctrinePhpFileCache implements SquirtableInterface
          * The directory is required to instantiate our PhpFileCache
          * so test for it explicitly
          */
-        if (empty($params['directory'])) {
-            throw new InvalidArgumentException('Missing directory');
-        }
-        $directory = $params['directory'];
+        $directory = SquirtUtil::validateStringParam('directory', $params);
         
         /*
          * The Cache namespace is optional
          */
-        if (empty($params['namespace'])) {
-            $namespace = '';
-        } else {
-            $namespace = $params['namespace'];
-        }
+        $namespace = SquirtUtil::validateStringParamWithDefault('namespace', $params, '');
         
         /*
          * The extension on the filenames is overridable
          */
-        if (empty($params['extension'])) {
-            $extension = null;
-        } else {
-            $extension = $params['extension'];
-        }
+        $extension = SquirtUtil::validateStringParamWithDefault('extension', $params, null);
         
         /*
          * Create and configure our instance

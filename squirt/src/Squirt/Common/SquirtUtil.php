@@ -28,6 +28,155 @@ final class SquirtUtil
     }
     
     /**
+     * Validate a parameter and require that it's value be a string
+     * @param string $key
+     * @param array $params
+     * @throws InvalidArgumentException
+     * @return string
+     */
+    public static function validateStringParam($key, array $params)
+    {
+        if (array_key_exists($key, $params)) {
+            $value = $params[$key];
+            
+            if (is_string($value)) {
+                return $value;
+            } else {
+                throw new InvalidArgumentException(
+                    'Expected value to be string for key: ' . $key);
+            }
+            
+        } else {
+            throw new InvalidArgumentException('Missing key: ' . $key);
+        }
+    }
+    
+    /**
+     * Validate that a key, if set, is a string, otherwise return the default
+     * @param string $key
+     * @param array $params
+     * @param string $default
+     * @throws InvalidArgumentException
+     * @return string
+     */
+    public static function validateStringParamWithDefault($key, array $params, $default)
+    {
+        if (array_key_exists($key, $params)) {
+            $value = $params[$key];
+        
+            if (is_string($value)) {
+                return $value;
+            } else {
+                throw new InvalidArgumentException(
+                    'Expected value to be string for key: ' . $key);
+            }
+        
+        } else {
+            return $default;
+        }
+    }
+    
+    /**
+     * Require that a parameter be set and be numeric
+     * @param string $key
+     * @param array $params
+     * @throws InvalidArgumentException
+     * @return unknown
+     */
+    public static function validateNumericParam($key, array $params)
+    {
+        if (array_key_exists($key, $params)) {
+            $value = $params[$key];
+        
+            if (is_numeric($var)) {
+                return $value;
+            } else {
+                throw new InvalidArgumentException(
+                    'Expected value to be numeric for key: ' . $key);
+            }
+        
+        } else {
+            throw new InvalidArgumentException('Missing key: ' . $key);
+        }
+    }
+    
+    /**
+     * Validate that if a parameter is set, that it be numeric
+     * otherwise use a default value
+     * @param string $key
+     * @param array $params
+     * @param number $default
+     * @throws InvalidArgumentException
+     * @return number
+     */
+    public static function validateNumericParamWithDefault($key, array $params, $default)
+    {
+        if (array_key_exists($key, $params)) {
+            $value = $params[$key];
+        
+            if (is_numeric($var)) {
+                return $value;
+            } else {
+                throw new InvalidArgumentException(
+                    'Expected value to be numeric for key: ' . $key);
+            }
+        
+        } else {
+            return $default;
+        }
+    }
+    
+    /**
+     * Expect that a parameter value be set and be a boolean
+     * @param string $key
+     * @param array $params
+     * @throws InvalidArgumentException
+     * @return boolean
+     */
+    public static function validateBooleanParam($key, array $params)
+    {
+        if (array_key_exists($key, $params)) {
+            $value = $params[$key];
+        
+            if (is_bool($var)) {
+                return $value;
+            } else {
+                throw new InvalidArgumentException(
+                    'Expected value to be boolean for key: ' . $key);
+            }
+        
+        } else {
+            throw new InvalidArgumentException('Missing key: ' . $key);
+        }
+    }
+    
+    /**
+     * Require that a parameter, if set, be a boolean
+     * otherwise use a default value
+     * @param string $key
+     * @param array $params
+     * @param boolean $default
+     * @throws InvalidArgumentException
+     * @return boolean
+     */
+    public static function validateBooleanParamWithDefault($key, array $params, $default)
+    {
+        if (array_key_exists($key, $params)) {
+            $value = $params[$key];
+        
+            if (is_bool($var)) {
+                return $value;
+            } else {
+                throw new InvalidArgumentException(
+                    'Expected value to be boolean for key: ' . $key);
+            }
+        
+        } else {
+            return $default;
+        }
+    }
+    
+    /**
      * Validate an input key in a parameter array
      * to ensure that it exists and is of the proper class
      * 
