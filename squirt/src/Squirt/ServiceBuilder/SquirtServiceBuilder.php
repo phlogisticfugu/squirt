@@ -3,6 +3,7 @@ namespace Squirt\ServiceBuilder;
 
 use InvalidArgumentException;
 use RuntimeException;
+use LogicException;
 use Squirt\Exception\NoSuchServiceException;
 use Squirt\Common\SquirtableInterface;
 use Squirt\Common\SquirtableTrait;
@@ -68,10 +69,10 @@ class SquirtServiceBuilder implements SquirtableInterface
     
     /**
      * Get an instance of the service with a given name
-     * 
+     *
      * with some optionally overridable instance parameters
      * and a flag to control caching
-     * 
+     *
      * @param string $serviceName
      * @param array|null $instanceParams
      * @param boolean $allowCache
@@ -80,40 +81,9 @@ class SquirtServiceBuilder implements SquirtableInterface
      */
     public function get($serviceName, $instanceParams=null, $allowCache=true)
     {
-        /*
-         * Use a cached service if possible
-         */
-        if ($allowCache && (null === $instanceParams)) {
-            if (isset($this->instantiatedNameServiceCache[$serviceName])) {
-                return $this->instantiatedNameServiceCache[$serviceName];
-            }
-        }
-        
-        $config = $this->getConfig($serviceName, $instanceParams);
-        $params = $config['params'];
-        
-        /*
-         * Lookup any references to other services in the parameters
-         * for this service
-         */
-        $params = $this->processParams($params, $allowCache);
-        
-        /*
-         * Actually construct the service
-         */
-        $class = $config['class'];
-        $service = $class::factory($params);
-        
-        /*
-         * Do some caching as appropriate
-         */
-        if ($allowCache && (null === $instanceParams)) {
-            $this->instantiatedNameServiceCache[$serviceName] = $service;
-        }
-        
-        return $service;
+        return $this->actuallyGet($serviceName, $instanceParams, $allowCache);
     }
-    
+        
     /**
      * Get the configuration that would be used to instantiate a service
      * but without doing any actual instantiations
@@ -140,6 +110,9 @@ class SquirtServiceBuilder implements SquirtableInterface
             $params = array();
         }
         
+        /*
+         * Apply overrides passed at the time of instantiation
+         */
         if (is_array($instanceParams)) {
             $params = array_replace_recursive($params, $instanceParams);
         }
@@ -150,25 +123,80 @@ class SquirtServiceBuilder implements SquirtableInterface
     }
     
     /**
+     * Execute the actual code to get a service instance, but with some extra state maintained
+     * in the calls
+     */
+    protected function actuallyGet($serviceName, $instanceParams, $allowCache, $requestedServiceNameSet=array())
+    {
+        /*
+         * Use a cached service if possible
+        */
+        if ($allowCache && (null === $instanceParams)) {
+            if (array_key_exists($serviceName, $this->instantiatedNameServiceCache)) {
+                return $this->instantiatedNameServiceCache[$serviceName];
+            }
+        }
+    
+        /*
+         * No cached instance already exists, so start building one
+        */
+        $requestedServiceNameSet[$serviceName] = true;
+    
+        $config = $this->getConfig($serviceName, $instanceParams);
+        $params = $config['params'];
+    
+        /*
+         * Lookup any references to other services in the parameters
+        * for this service
+        */
+        $params = $this->processParams($params, $allowCache, $requestedServiceNameSet);
+    
+        /*
+         * Actually construct the service
+        */
+        $class = $config['class'];
+        $service = $class::factory($params);
+    
+        /*
+         * Do some caching as appropriate
+        */
+        if ($allowCache && (null === $instanceParams)) {
+            $this->instantiatedNameServiceCache[$serviceName] = $service;
+        }
+    
+        return $service;
+    }
+    
+    /**
      * Process parameters from a configuration, looking up any references
      * to other services and instantiating them
      * @param array $params
      * @param boolean $allowCache
+     * @param array $requestedServiceNameSet
      */
-    protected function processParams(array $params, $allowCache)
+    protected function processParams(array $params, $allowCache, array $requestedServiceNameSet)
     {
         
-        $out = array_map(function($value) use ($allowCache) {
+        $out = array_map(function($value) use ($allowCache, $requestedServiceNameSet) {
             if (is_string($value)
                 && preg_match('/^{([a-zA-Z0-9_\\.\\-]+)}$/', $value, $matches)) {
                 
                 /*
                  * Resolve any named service into it's instance
                  */
-                $value = $this->get($matches[1], null, $allowCache);
+                $serviceName = $matches[1];
+                
+                /*
+                 * Prevent infinite recursion
+                 */
+                if (isset($requestedServiceNameSet[$serviceName])) {
+                    throw new LogicException('Invalid infinite recursion. serviceName:' . $serviceName);
+                }
+                
+                $value = $this->actuallyGet($serviceName, null, $allowCache, $requestedServiceNameSet);
             
             } elseif (is_array($value)) {
-                $value = $this->processParams($value, $allowCache);    
+                $value = $this->processParams($value, $allowCache, $requestedServiceNameSet);    
             }
             
             return $value;

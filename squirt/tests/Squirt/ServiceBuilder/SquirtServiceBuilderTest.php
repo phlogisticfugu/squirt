@@ -198,6 +198,39 @@ class SquirtServiceBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertNotSame($instance1, $instance3);
     }
     
+    /**
+     * @expectedException \LogicException
+     */
+    public function testInfiniteRecursiveService()
+    {
+        /*
+         * Test a service which requires itself, which should
+         * result in an exception being thrown, and not an infinite loop
+         */
+        $squirtServiceBuilder = SquirtServiceBuilder::factory(array(
+            'config' => array(
+                'services' => array(
+                    'CONTAINER1' => array(
+                        'class' => 'Squirt\Common\Container'
+                        ,'params' => array(
+                            '{CONTAINER2}'
+                        )
+                    ),
+                    'CONTAINER2' => array(
+                        'class' => 'Squirt\Common\Container'
+                        ,'params' => array(
+                            '{CONTAINER1}'
+                        )
+                    )
+                )
+            )
+        ));
+        
+        $container1 = $squirtServiceBuilder->get('CONTAINER1');
+        
+        $this->fail('Should not get past a bad config');
+    }
+    
     public function testSimpleGetConfig()
     {
         $squirtServiceBuilder = SquirtServiceBuilder::factory(array(
