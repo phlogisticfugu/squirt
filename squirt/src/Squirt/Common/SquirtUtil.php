@@ -88,7 +88,7 @@ final class SquirtUtil
         if (array_key_exists($key, $params)) {
             $value = $params[$key];
         
-            if (is_numeric($var)) {
+            if (is_numeric($value)) {
                 return $value;
             } else {
                 throw new InvalidArgumentException(
@@ -114,7 +114,7 @@ final class SquirtUtil
         if (array_key_exists($key, $params)) {
             $value = $params[$key];
         
-            if (is_numeric($var)) {
+            if (is_numeric($value)) {
                 return $value;
             } else {
                 throw new InvalidArgumentException(
@@ -138,7 +138,7 @@ final class SquirtUtil
         if (array_key_exists($key, $params)) {
             $value = $params[$key];
         
-            if (is_bool($var)) {
+            if (is_bool($value)) {
                 return $value;
             } else {
                 throw new InvalidArgumentException(
@@ -164,11 +164,61 @@ final class SquirtUtil
         if (array_key_exists($key, $params)) {
             $value = $params[$key];
         
-            if (is_bool($var)) {
+            if (is_bool($value)) {
                 return $value;
             } else {
                 throw new InvalidArgumentException(
                     'Expected value to be boolean for key: ' . $key);
+            }
+        
+        } else {
+            return $default;
+        }
+    }
+    
+    /**
+     * Require that a parameter be set and be an array
+     * @param string $key
+     * @param array $params
+     * @throws InvalidArgumentException
+     * @return array
+     */
+    public static function validateArrayParam($key, array $params)
+    {
+        if (array_key_exists($key, $params)) {
+            $value = $params[$key];
+        
+            if (is_array($value)) {
+                return $value;
+            } else {
+                throw new InvalidArgumentException(
+                    'Expected value to be array for key: ' . $key);
+            }
+        
+        } else {
+            throw new InvalidArgumentException('Missing key: ' . $key);
+        }
+    }
+    
+    /**
+     * Validate that a paramter value, if set, be an array
+     * otherwise return a default
+     * @param string $key
+     * @param array $params
+     * @param unknown $default
+     * @throws InvalidArgumentException
+     * @return unknown|array
+     */
+    public static function validateArrayParamWithDefault($key, array $params, $default)
+    {
+        if (array_key_exists($key, $params)) {
+            $value = $params[$key];
+        
+            if (is_array($value)) {
+                return $value;
+            } else {
+                throw new InvalidArgumentException(
+                    'Expected value to be array for key: ' . $key);
             }
         
         } else {
