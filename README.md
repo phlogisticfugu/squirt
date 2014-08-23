@@ -3,14 +3,14 @@ squirt
 
 Simple and lightweight PHP dependency injection.
 
-It is inspired by the ServiceBuilder in [Guzzle](https://github.com/guzzle/guzzle3),
-but simplifies and improves upon that.  The ServiceBuilder was also removed in Guzzle 4.
+It is inspired by the ServiceBuilder in [Guzzle 3](https://github.com/guzzle/guzzle3),
+but simplifies and expands upon that.
 
 Why squirt?
 -----------
 
 * Provides all the benefits of [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection)
-  via "constructor" injection
+  via "constructor" like injection
 * Make unit testing easier/possible by permitting the injection of mock objects
 * Separate configuration from code.  Squirt configuration files contain the configuration
   with details like database login details, connection timeouts, and other such parameters
@@ -19,17 +19,18 @@ Why squirt?
   (e.g. a Logger and a Doctrine DBALConnection), squirt service extensions and config file inclusion
   let you keep that configuration in one place, instead of scattering it around the codebase.
   Configurations also cascade, permitting the setting of defaults at multiple levels.
-* Uses "simple" PHP.  No annotations, no YAML/XML, no reflection.  Squirt config files
-  are PHP files, so your IDE can already handle them, and opcode caches already optimize them.
-  One can even use squirt-compatible classes without using squirt configurations/service builders,
-  so that your squirt-compatible library can be used in frameworks that don't use squirt.
-* Highly compatible.  If you use external libraries (and you should), but those libraries
-  don't support squirt, it is very easy to write a wrapper class to add squirt support.
+* Designed with performance in mind.  Squirt config files are written in PHP, so PHP opcode caches
+  already optimize them.  Squirt also supports Doctrine caches on the entire configuration
+  (making use of the fact that configuration is pure data, with no code).
+* Designed for compatibility.  If you use external libraries (and you should), it is very easy to
+  write a wrapper class to add squirt support.
+  One can even use squirt-compatible classes without the squirt service builder;
+  so a squirt-compatible class can be used in frameworks that don't use squirt.
 
 Basic Example
 -------------
 
-app_config.php - squirt config file
+*app_config.php* - squirt config file
 
     return array(
         'services' => array(
@@ -55,7 +56,7 @@ app_config.php - squirt config file
 
 \* Note that there is no code in the configuration.  And configuration permits comments
 
-MyApp\App.php - squirt-compatible end-user class
+*MyApp\App.php* - squirt-compatible end-user class
 
     namespace MyApp;
     
@@ -77,6 +78,8 @@ MyApp\App.php - squirt-compatible end-user class
         {
             /*
              * Validate values from the $params and set them in our instance.
+             * Using a squirt utility functions aimed at assisting with this common task
+             * and throwing an InvalidArgumentException when there's a problem
              *
              * This is the equivalent of adding validation to:
              * $this->logger = $params['logger'];
@@ -102,7 +105,7 @@ MyApp\App.php - squirt-compatible end-user class
 
 \* Note that there is no configuration in the code, for proper separation
 
-MyApp\Logger.php - squirt-compatible wrapper for a Monolog Logger
+*MyApp\Logger.php* - squirt-compatible wrapper for a Monolog Logger
 
     namespace MyApp;
 
@@ -124,7 +127,7 @@ MyApp\Logger.php - squirt-compatible wrapper for a Monolog Logger
         }
     }
 
-MyApp\GuzzleClient - squirt-compatible wrapper for a Guzzle 4 Client
+*MyApp\GuzzleClient.php* - squirt-compatible wrapper for a Guzzle 4 Client
 
     namespace MyApp;
 
@@ -134,10 +137,14 @@ MyApp\GuzzleClient - squirt-compatible wrapper for a Guzzle 4 Client
 
     class GuzzleClient extends Client implements SquirtableInterface
     {
-        use Squirt\Common\SquirtableTrait;
+        /*
+         * Squirt provides traits to help with common cases for making
+         * squirt-compatible wrapper classes
+         */
+        use SquirtableTrait;
     }
 
-run.php - normal squirt service-consuming script
+*run.php* - normal squirt service-consuming script
 
     use Squirt\ServiceBuilder\SquirtServiceBuilder;
 
@@ -151,7 +158,7 @@ run.php - normal squirt service-consuming script
 
     $app->run();
 
-run_nonsquirt.php - squirt-compatible classes can be run even without squirt if necessary
+*run_nonsquirt.php* - squirt-compatible classes can be run even without squirt if necessary
 
     use MyApp\App;
     use MyApp\Logger;
