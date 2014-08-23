@@ -13,18 +13,18 @@ Why squirt?
   via "constructor" like injection
 * Make unit testing easier/possible by permitting the injection of mock objects
 * Separate configuration from code.  Squirt configuration files contain the configuration
-  with details like database login details, connection timeouts, and other such parameters
-  while your classes are kept easily reusable and configurable.
+  with details like database logins, connection timeouts, and which classes to instantiate,
+  while your code itself is kept easily reusable and configurable.
 * Keep your code DRY.  Say you inject a common set of objects in multiple situations
   (e.g. a Logger and a Doctrine DBALConnection), squirt service extensions and config file inclusion
   let you keep that configuration in one place, instead of scattering it around the codebase.
   Configurations also cascade, permitting the setting of defaults at multiple levels.
-* Designed with performance in mind.  Squirt config files are written in PHP, so PHP opcode caches
+* Designed for performance.  Squirt config files are written in PHP, so opcode caches
   already optimize them.  Squirt also supports Doctrine caches on the entire configuration
   (making use of the fact that configuration is pure data, with no code).
 * Designed for compatibility.  If you use external libraries (and you should), it is very easy to
   write a wrapper class to add squirt support.
-  One can even use squirt-compatible classes without the squirt service builder;
+  You can even use squirt-compatible classes without the squirt service builder;
   so a squirt-compatible class can be used in frameworks that don't use squirt.
 
 Basic Example
@@ -57,7 +57,7 @@ Basic Example
 \* Note that there is no code in the configuration, so it can be cached and stored as data.
   And configuration permits normal PHP comments to provide clarity when needed.
 
-*MyApp\App.php* - squirt-compatible end-user class
+*MyApp/App.php* - squirt-compatible end-user class
 
     namespace MyApp;
     
@@ -106,7 +106,7 @@ Basic Example
 
 \* Note that there is no configuration in the code, for proper separation
 
-*MyApp\Logger.php* - squirt-compatible wrapper for a Monolog Logger
+*MyApp/Logger.php* - squirt-compatible wrapper for a Monolog Logger
 
     namespace MyApp;
 
@@ -128,7 +128,7 @@ Basic Example
         }
     }
 
-*MyApp\GuzzleClient.php* - squirt-compatible wrapper for a Guzzle 4 Client
+*MyApp/GuzzleClient.php* - squirt-compatible wrapper for a Guzzle 4 Client
 
     namespace MyApp;
 
