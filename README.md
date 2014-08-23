@@ -54,7 +54,8 @@ Basic Example
         )
     );
 
-\* Note that there is no code in the configuration.  And configuration permits comments
+\* Note that there is no code in the configuration, so it can be cached and stored as data.
+  And configuration permits normal PHP comments to provide clarity when needed.
 
 *MyApp\App.php* - squirt-compatible end-user class
 
