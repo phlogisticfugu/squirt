@@ -79,8 +79,8 @@ Basic Example
         {
             /*
              * Validate values from the $params and set them in our instance.
-             * Using a squirt utility functions aimed at assisting with this common task
-             * and throwing an InvalidArgumentException when there's a problem
+             * Using squirt utility functions that assist with this common task
+             * and throw an InvalidArgumentException when there's a problem.
              *
              * This is the equivalent of adding validation to:
              * $this->logger = $params['logger'];
