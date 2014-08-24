@@ -227,6 +227,54 @@ class SquirtServiceBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertNotSame($instance1, $instance3);
     }
 
+    public function testPrecedenceGet()
+    {
+
+        $squirtServiceBuilder = SquirtServiceBuilder::factory(array(
+            'config' => array(
+                'includes' => array(
+                    SQUIRT_TEST_DIR
+                    . join(DIRECTORY_SEPARATOR,
+                        array('', '_config', 'precedence_include_config.php'))
+                ),
+                'services' => array(
+                    'PARENT_CONTAINER' => array(
+                        'class' => 'Squirt\Common\Container'
+                        ,'params' => array(
+                            'alpha' => 'from:config-parent',
+                            'beta' => 'from:config-parent',
+                            'gamma' => 'from:config-parent',
+                            'delta' => 'from:config-parent'
+                        )
+                    ),
+                    'CONTAINER' => array(
+                        'extends' => 'PARENT_CONTAINER'
+                        ,'params' => array(
+                            'alpha' => 'from:config-service',
+                            'beta' => 'from:config-service'
+                        )
+                    )
+                )
+            )
+        ));
+
+        $container = $squirtServiceBuilder->get('CONTAINER', array(
+            'alpha' => 'from:get'
+        ));
+        $data = $container->toArray();
+
+        /*
+         * This is the order of precedence from highest to least
+         */
+        $this->assertEquals(array(
+            'alpha' => 'from:get',
+            'beta' => 'from:config-service',
+            'gamma' => 'from:include-service',
+            'delta' => 'from:config-parent',
+            'epsilon' => 'from:include-parent'
+        ), $data);
+    }
+
     /**
      * @expectedException \LogicException
      */
