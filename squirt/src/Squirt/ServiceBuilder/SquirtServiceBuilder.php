@@ -47,6 +47,10 @@ class SquirtServiceBuilder implements SquirtableInterface
             'Squirt\ServiceBuilder\SquirtServiceConfigLoader',
             $params,
             function() use ($params) {
+                /*
+                 * Pass through parameters as these two classes are tightly
+                 * coupled and can use each other's configurations
+                 */
                 return SquirtServiceConfigLoader::factory($params);
             }
         );
