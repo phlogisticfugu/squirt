@@ -18,15 +18,15 @@ class MongoDBCache extends DoctrineMongoDBCache implements SquirtableInterface
     public static function factory(array $params=array())
     {
         $collection = SquirtUtil::validateParamClass('collection', '\MongoCollection', $params);
-        
+
         $instance = new static($collection);
-        
+
         $namespace =
             SquirtUtil::validateStringParamWithDefault('namespace', $params, 'squirt');
         if (strlen($namespace) > 0) {
             $instance->setNamespace($namespace);
         }
-        
+
         return $instance;
     }
 }

@@ -19,19 +19,19 @@ class MemcacheCache extends DoctrineMemcacheCache implements SquirtableInterface
     {
 
         $instance = new static();
-    
+
         /*
          * To make this work, we must have a memcache instance
          */
         $memcache = SquirtUtil::validateParamClass('memcache', '\Memcache', $params);
         $instance->setMemcache($memcache);
-        
+
         $namespace =
             SquirtUtil::validateStringParamWithDefault('namespace', $params, 'squirt');
         if (strlen($namespace) > 0) {
             $instance->setNamespace($namespace);
         }
-    
+
         return $instance;
     }
 }

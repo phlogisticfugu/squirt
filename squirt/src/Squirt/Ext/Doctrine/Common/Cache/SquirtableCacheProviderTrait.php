@@ -17,13 +17,13 @@ trait SquirtableCacheProviderTrait
     public static function factory(array $params=array())
     {
         $instance = new static();
-        
+
         $namespace =
             SquirtUtil::validateStringParamWithDefault('namespace', $params, 'squirt');
         if (strlen($namespace) > 0) {
             $instance->setNamespace($namespace);
         }
-        
+
         return $instance;
     }
 }

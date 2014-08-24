@@ -8,5 +8,5 @@ interface SquirtableInterface
      * in a manner compatible with Squirt dependency injection
      * @param array $params
      */
-    public static function factory(array $params=array());    
+    public static function factory(array $params=array());
 }

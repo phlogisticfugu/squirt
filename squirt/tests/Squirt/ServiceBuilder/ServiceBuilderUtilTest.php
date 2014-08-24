@@ -9,30 +9,30 @@ class ServiceBuilderUtilTest extends \PHPUnit_Framework_TestCase
     {
         $result = ServiceBuilderUtil::mergeConfig(array(), array());
         $this->assertEquals(array(), $result);
-        
+
         $result = ServiceBuilderUtil::mergeConfig(array('foo' => 'bar'), array());
         $this->assertEquals(array('foo' => 'bar'), $result);
-        
+
         $result = ServiceBuilderUtil::mergeConfig(array(), array('foo' => 'bar'));
         $this->assertEquals(array('foo' => 'bar'), $result);
-        
+
         $result = ServiceBuilderUtil::mergeConfig(array('foo' => 'baz!!'), array('foo' => 'bar'));
         $this->assertEquals(array('foo' => 'bar'), $result);
     }
-    
+
     public function testMergeConfigMismatch()
     {
         $result = ServiceBuilderUtil::mergeConfig(
             array('foo' => array('color' => 'red')),
             array('foo' => 'bar'));
         $this->assertEquals(array('foo' => 'bar'), $result);
-        
+
         $result = ServiceBuilderUtil::mergeConfig(
             array('foo' => 'override'),
             array('foo' => array('color' => 'red')));
         $this->assertEquals(array('foo' => array('color' => 'red')), $result);
     }
-    
+
     public function testMergeConfigRecursive()
     {
         $result = ServiceBuilderUtil::mergeConfig(
@@ -58,7 +58,7 @@ class ServiceBuilderUtilTest extends \PHPUnit_Framework_TestCase
             )
         ), $result);
     }
-    
+
     public function testMergeConfigList()
     {
         /*

@@ -18,19 +18,19 @@ class CouchbaseCache extends DoctrineCouchbaseCache implements SquirtableInterfa
     public static function factory(array $params=array())
     {
         $instance = new static();
-        
+
         /*
          * To make this work, we must have a couchbase instance
          */
         $couchbase = SquirtUtil::validateParamClass('couchbase', '\Couchbase', $params);
         $instance->setCouchbase($couchbase);
-        
+
         $namespace =
             SquirtUtil::validateStringParamWithDefault('namespace', $params, 'squirt');
         if (strlen($namespace) > 0) {
             $instance->setNamespace($namespace);
         }
-        
+
         return $instance;
     }
 }

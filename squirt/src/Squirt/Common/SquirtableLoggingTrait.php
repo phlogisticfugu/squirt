@@ -13,7 +13,7 @@ use Psr\Log\LoggerAwareTrait;
 trait SquirtableLoggingTrait
 {
     use LoggerAwareTrait;
-    
+
     /**
      * Simple static factory used to create a new instance
      * in a manner compatible with Squirt dependency injection
@@ -26,7 +26,7 @@ trait SquirtableLoggingTrait
          * proper concrete class
          */
         $instance = new static($params);
-        
+
         if (array_key_exists('logger', $params)) {
             if ($params['logger'] instanceof LoggerInterface) {
                 $instance->setLogger($params['logger']);
@@ -34,10 +34,10 @@ trait SquirtableLoggingTrait
                 throw new InvalidArgumentException('Invalid logger');
             }
         }
-        
+
         return $instance;
     }
-    
+
     /**
      * Permit access to the logger object with which we've been configured
      * @return \Psr\Log\LoggerInterface

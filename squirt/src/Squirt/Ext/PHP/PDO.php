@@ -8,7 +8,7 @@ use Squirt\Common\SquirtUtil;
 /**
  * This squirt wrapper wraps the native PHP PDO class
  * in a manner that makes it configurable
- * 
+ *
  * @link http://php.net/manual/en/book.pdo.php
  */
 class PDO extends PhpPDO implements SquirtableInterface
@@ -24,9 +24,9 @@ class PDO extends PhpPDO implements SquirtableInterface
         $username = SquirtUtil::validateStringParamWithDefault('username', $params, '');
         $password = SquirtUtil::validateStringParamWithDefault('password', $params, '');
         $options = SquirtUtil::validateArrayParamWithDefault('options', $params, array());
-        
+
         $instance = new static($dsn, $username, $password, $options);
-        
+
         return $instance;
     }
 }

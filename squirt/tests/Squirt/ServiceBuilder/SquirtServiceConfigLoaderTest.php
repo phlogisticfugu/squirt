@@ -8,14 +8,14 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
     public function testInstantiate()
     {
         $squirtServiceConfigLoader = SquirtServiceConfigLoader::factory();
-        
+
         $this->assertInstanceOf(
             'Squirt\ServiceBuilder\SquirtServiceConfigLoader',
             $squirtServiceConfigLoader);
-        
+
         return $squirtServiceConfigLoader;
     }
-    
+
     /**
      * @depends testInstantiate
      * @param SquirtServiceConfigLoader $squirtServiceConfigLoader
@@ -26,7 +26,7 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(is_array($serviceConfig), 'loadConfig returns an array');
         $this->assertEquals(0, count($serviceConfig), 'empty serviceConfig');
     }
-    
+
     /**
      * @depends testInstantiate
      * @param SquirtServiceConfigLoader $squirtServiceConfigLoader
@@ -48,7 +48,7 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Squirt\ServiceBuilder\SquirtServiceConfigLoader',
             $serviceConfig['SERVICE_CONFIG_LOADER']['class']);
     }
-    
+
     /**
      * @depends testInstantiate
      * @param SquirtServiceConfigLoader $squirtServiceConfigLoader
@@ -68,7 +68,7 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Squirt\ServiceBuilder\SquirtServiceConfigLoader',
             $serviceConfig['SQUIRT.SERVICE_CONFIG_LOADER']['class']);
     }
-    
+
     /**
      * @depends testInstantiate
      * @param SquirtServiceConfigLoader $squirtServiceConfigLoader
@@ -101,7 +101,7 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
         ));
         $this->assertTrue(is_array($serviceConfig), 'loadConfig returns an array');
         $this->assertArrayHasKey('SQUIRT.SERVICE_CONFIG_LOADER', $serviceConfig);
-        
+
         /*
          * SERVICE_CONFIG_LOADER extends abstract_service and so gets its properties
          * as well
@@ -112,7 +112,7 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
             ),
             'class' => 'Squirt\ServiceBuilder\SquirtServiceConfigLoader'
         ), $serviceConfig['SQUIRT.SERVICE_CONFIG_LOADER']);
-        
+
         /*
          * SERVICE_CONFIG_LOADER2 extends both SERVICE_CONFIG_LOADER and abstract_service
          * but uses the fully qualified version of the name for SERVICE_CONFIG_LOADER
@@ -126,7 +126,7 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
             'class' => 'Squirt\ServiceBuilder\SquirtServiceConfigLoader'
         ), $serviceConfig['SQUIRT.SERVICE_CONFIG_LOADER2']);
     }
-    
+
     /**
      * @depends testInstantiate
      * @param SquirtServiceConfigLoader $squirtServiceConfigLoader
@@ -173,7 +173,7 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
             )
         ), $container2Config);
     }
-    
+
     /**
      * @depends testInstantiate
      * @param SquirtServiceConfigLoader $squirtServiceConfigLoader
@@ -183,7 +183,7 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
 
         $configFileName = SQUIRT_TEST_DIR
             . join(DIRECTORY_SEPARATOR, array('', '_config', 'test_config.php'));
-        
+
         $expected = array(
             'LAMB.TEST' => array(
                 'class' => 'Squirt\ServiceBuilder\SquirtServiceConfigLoader'
@@ -210,14 +210,14 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
                 )
             )
         );
-        
+
         /*
          * Try an initial load (noting that this is stored in the cache)
          */
         $serviceConfig = $squirtServiceConfigLoader->loadFile($configFileName);
         $this->assertTrue(is_array($serviceConfig), 'loadFile returns an array');
         $this->assertEquals($expected, $serviceConfig);
-        
+
         /*
          * Try a second load, using the cache
          */
@@ -225,7 +225,7 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(is_array($serviceConfig), 'loadFile returns an array');
         $this->assertEquals($expected, $serviceConfig);
     }
-    
+
     /**
      * @depends testInstantiate
      * @param SquirtServiceConfigLoader $squirtServiceConfigLoader
@@ -234,7 +234,7 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
     {
         $configFileName = SQUIRT_TEST_DIR
             . join(DIRECTORY_SEPARATOR, array('', '_config', 'circular_reference_config.php'));
-        
+
         /*
          * Test an invalid config file with a circular reference
          * which should throw a RuntimeException

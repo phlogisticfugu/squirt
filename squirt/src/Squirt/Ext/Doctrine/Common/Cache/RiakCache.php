@@ -18,15 +18,15 @@ class RiakCache extends DoctrineRiakCache implements SquirtableInterface
     public static function factory(array $params=array())
     {
         $bucket = SquirtUtil::validateParamClass('bucket', 'Riak\Bucket', $params);
-        
+
         $instance = new static($bucket);
-        
+
         $namespace =
             SquirtUtil::validateStringParamWithDefault('namespace', $params, 'squirt');
         if (strlen($namespace) > 0) {
             $instance->setNamespace($namespace);
         }
-    
+
         return $instance;
     }
 }

@@ -10,11 +10,11 @@ class ArrayCacheTest extends \PHPUnit_Framework_TestCase
         $arrayCache = ArrayCache::factory(array(
             'namespace' => 'test'
         ));
-        
+
         $this->assertInstanceOf('Squirt\Ext\Doctrine\Common\Cache\ArrayCache', $arrayCache);
         $this->assertInstanceOf('Doctrine\Common\Cache\ArrayCache', $arrayCache);
     }
-    
+
     /**
      * @expectedException \InvalidArgumentException
      */

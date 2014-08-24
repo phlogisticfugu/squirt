@@ -12,7 +12,7 @@ final class SquirtUtil
     /**
      * Validate an input key in a parameter array; testing that
      * the key exists, but not doing any type checking
-     * 
+     *
      * @param unknown $key
      * @param array $params
      * @throws InvalidArgumentException
@@ -26,7 +26,7 @@ final class SquirtUtil
             throw new InvalidArgumentException('Missing key: ' . $key);
         }
     }
-    
+
     /**
      * Validate a parameter and require that it's value be a string
      * @param string $key
@@ -38,19 +38,19 @@ final class SquirtUtil
     {
         if (array_key_exists($key, $params)) {
             $value = $params[$key];
-            
+
             if (is_string($value)) {
                 return $value;
             } else {
                 throw new InvalidArgumentException(
                     'Expected value to be string for key: ' . $key);
             }
-            
+
         } else {
             throw new InvalidArgumentException('Missing key: ' . $key);
         }
     }
-    
+
     /**
      * Validate that a key, if set, is a string, otherwise return the default
      * @param string $key
@@ -63,19 +63,19 @@ final class SquirtUtil
     {
         if (array_key_exists($key, $params)) {
             $value = $params[$key];
-        
+
             if (is_string($value)) {
                 return $value;
             } else {
                 throw new InvalidArgumentException(
                     'Expected value to be string for key: ' . $key);
             }
-        
+
         } else {
             return $default;
         }
     }
-    
+
     /**
      * Require that a parameter be set and be numeric
      * @param string $key
@@ -87,19 +87,19 @@ final class SquirtUtil
     {
         if (array_key_exists($key, $params)) {
             $value = $params[$key];
-        
+
             if (is_numeric($value)) {
                 return $value;
             } else {
                 throw new InvalidArgumentException(
                     'Expected value to be numeric for key: ' . $key);
             }
-        
+
         } else {
             throw new InvalidArgumentException('Missing key: ' . $key);
         }
     }
-    
+
     /**
      * Validate that if a parameter is set, that it be numeric
      * otherwise use a default value
@@ -113,19 +113,19 @@ final class SquirtUtil
     {
         if (array_key_exists($key, $params)) {
             $value = $params[$key];
-        
+
             if (is_numeric($value)) {
                 return $value;
             } else {
                 throw new InvalidArgumentException(
                     'Expected value to be numeric for key: ' . $key);
             }
-        
+
         } else {
             return $default;
         }
     }
-    
+
     /**
      * Expect that a parameter value be set and be a boolean
      * @param string $key
@@ -137,19 +137,19 @@ final class SquirtUtil
     {
         if (array_key_exists($key, $params)) {
             $value = $params[$key];
-        
+
             if (is_bool($value)) {
                 return $value;
             } else {
                 throw new InvalidArgumentException(
                     'Expected value to be boolean for key: ' . $key);
             }
-        
+
         } else {
             throw new InvalidArgumentException('Missing key: ' . $key);
         }
     }
-    
+
     /**
      * Require that a parameter, if set, be a boolean
      * otherwise use a default value
@@ -163,19 +163,19 @@ final class SquirtUtil
     {
         if (array_key_exists($key, $params)) {
             $value = $params[$key];
-        
+
             if (is_bool($value)) {
                 return $value;
             } else {
                 throw new InvalidArgumentException(
                     'Expected value to be boolean for key: ' . $key);
             }
-        
+
         } else {
             return $default;
         }
     }
-    
+
     /**
      * Require that a parameter be set and be an array
      * @param string $key
@@ -187,19 +187,19 @@ final class SquirtUtil
     {
         if (array_key_exists($key, $params)) {
             $value = $params[$key];
-        
+
             if (is_array($value)) {
                 return $value;
             } else {
                 throw new InvalidArgumentException(
                     'Expected value to be array for key: ' . $key);
             }
-        
+
         } else {
             throw new InvalidArgumentException('Missing key: ' . $key);
         }
     }
-    
+
     /**
      * Validate that a paramter value, if set, be an array
      * otherwise return a default
@@ -213,29 +213,29 @@ final class SquirtUtil
     {
         if (array_key_exists($key, $params)) {
             $value = $params[$key];
-        
+
             if (is_array($value)) {
                 return $value;
             } else {
                 throw new InvalidArgumentException(
                     'Expected value to be array for key: ' . $key);
             }
-        
+
         } else {
             return $default;
         }
     }
-    
+
     /**
      * Validate an input key in a parameter array
      * to ensure that it exists and is of the proper class
-     * 
+     *
      * Any errors throw an exception, otherwise the proper
      * value is returned.
-     * 
+     *
      * This class aims to encapsulate a common pattern used in
      * squirt-compatible classes
-     * 
+     *
      * @param string $key
      * @param string $class
      * @param array $params
@@ -247,7 +247,7 @@ final class SquirtUtil
         $class,
         array $params
     ) {
-        
+
         if (array_key_exists($key, $params)) {
             /*
              * If the value exists then ensure it's type
@@ -258,23 +258,23 @@ final class SquirtUtil
                 throw new InvalidArgumentException('value for key:' . $key
                     . ' should be an instance of ' . $class);
             }
-            
+
         } else {
             throw new InvalidArgumentException('Missing key: ' . $key);
         }
     }
-    
+
     /**
      * Validate an input key in a parameter array
      * to ensure that it exists and is of the proper class
      * or return a default value
-     * 
+     *
      * Any errors throw an exception, otherwise the proper
      * value is returned.
-     * 
+     *
      * This class aims to encapsulate a common pattern used in
      * squirt-compatible classes
-     * 
+     *
      * @param string $key
      * @param string $class
      * @param array $params
@@ -298,7 +298,7 @@ final class SquirtUtil
                 throw new InvalidArgumentException('value for key:' . $key
                     . ' should be an instance of ' . $class);
             }
-        
+
         } elseif (($default instanceof Closure) && (! $default instanceof $class)) {
             /*
              * Permit callers to pass a Closure which then does the creation of what will
@@ -306,16 +306,16 @@ final class SquirtUtil
              * class we are looking for to begin with, to avoid improper execution
              */
             return $default();
-            
+
         } else {
             return $default;
         }
     }
-    
+
     /**
      * Ensure this is never instantiated
      */
     private function __construct()
-    {}    
+    {}
 }
 

@@ -11,17 +11,17 @@ use Squirt\Common\SquirtableTrait;
 class Container implements SquirtableInterface, \ArrayAccess, \IteratorAggregate, \Countable
 {
     use SquirtableTrait;
-    
+
     /**
      * @var array
      */
     protected $data;
-    
+
     protected function __construct(array $params)
     {
         $this->data = $params;
     }
-    
+
     /**
      * (non-PHPdoc)
      * @see ArrayAccess::offsetExists()
@@ -30,7 +30,7 @@ class Container implements SquirtableInterface, \ArrayAccess, \IteratorAggregate
     {
         return array_key_exists($offset, $this->data);
     }
-    
+
     /**
      * (non-PHPdoc)
      * @see ArrayAccess::offsetGet()
@@ -39,7 +39,7 @@ class Container implements SquirtableInterface, \ArrayAccess, \IteratorAggregate
     {
         return $this->data[$offset];
     }
-    
+
     /**
      * (non-PHPdoc)
      * @see ArrayAccess::offsetSet()
@@ -48,7 +48,7 @@ class Container implements SquirtableInterface, \ArrayAccess, \IteratorAggregate
     {
         $this->data[$offset] = $value;
     }
-    
+
     /**
      * (non-PHPdoc)
      * @see ArrayAccess::offsetUnset()
@@ -57,12 +57,12 @@ class Container implements SquirtableInterface, \ArrayAccess, \IteratorAggregate
     {
         unset($this->data[$offset]);
     }
-    
+
     public function getIterator()
     {
         return new \ArrayIterator($this->data);
     }
-    
+
     public function count()
     {
         return count($this->data);

@@ -6,14 +6,13 @@ namespace Squirt\ServiceBuilder;
  */
 final class ServiceBuilderUtil
 {
-    
     /**
      * Merge configurations, overriding things in the parent with settings
      * in the child
-     * 
+     *
      * This behaves similarly to PHP's native array_replace_recursive()
      * but only applies the recursive step to string keys, and not to integer keys
-     * 
+     *
      * @param array $parentConfig
      * @param array $childConfig
      * @return array
@@ -21,14 +20,14 @@ final class ServiceBuilderUtil
     public static function mergeConfig(array $parentConfig, array $childConfig)
     {
         $outConfig = $parentConfig;
-        
+
         $foundStringKey = false;
         foreach ($childConfig as $key => $value) {
             if (is_string($key)) {
                 $foundStringKey = true;
-                
+
                 if (array_key_exists($key, $parentConfig)) {
-                    
+
                     if (is_array($value) && is_array($parentConfig[$key])) {
                         /*
                          * Apply a recursive step if the array key is a string
@@ -42,8 +41,7 @@ final class ServiceBuilderUtil
                          */
                         $outConfig[$key] = $value;
                     }
-                    
-                    
+
                 } else {
                     /*
                      * Just override what's in the parent with what
@@ -53,7 +51,7 @@ final class ServiceBuilderUtil
                 }
             }
         }
-        
+
         /*
          * When all the keys are integers, then we aren't really mapping keys to each
          * other and should just use the values in the child
@@ -61,10 +59,10 @@ final class ServiceBuilderUtil
         if (! $foundStringKey && (count($childConfig) > 0)) {
             $outConfig = $childConfig;
         }
-        
+
         return $outConfig;
     }
-    
+
     private function __construct()
     {}
 }

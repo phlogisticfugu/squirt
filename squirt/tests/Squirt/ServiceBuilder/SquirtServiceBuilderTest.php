@@ -5,16 +5,16 @@ use Squirt\ServiceBuilder\SquirtServiceBuilder;
 
 class SquirtServiceBuilderTest extends \PHPUnit_Framework_TestCase
 {
-    
+
     public function testInstantiate()
     {
         $squirtServiceBuilder = SquirtServiceBuilder::factory();
-        
+
         $this->assertInstanceOf('Squirt\ServiceBuilder\SquirtServiceBuilder', $squirtServiceBuilder);
-        
+
         return $squirtServiceBuilder;
     }
-    
+
     /**
      * @depends testInstantiate
      * @param SquirtServiceBuilder $squirtServiceBuilder
@@ -28,7 +28,7 @@ class SquirtServiceBuilderTest extends \PHPUnit_Framework_TestCase
         $squirtServiceBuilder->get('DOES_NOT_EXIST');
         $this->fail('Should not be able to get a service that does not exist');
     }
-    
+
     public function testFileConfigGet()
     {
         $squirtServiceBuilder = SquirtServiceBuilder::factory(array(
@@ -50,15 +50,15 @@ class SquirtServiceBuilderTest extends \PHPUnit_Framework_TestCase
                 )
             )
         ));
-        
+
         /*
          * Test that overrides cascade in the following order from least to highest priority:
-         * 
+         *
          * files included inside config file
          * config file
          * SqurtServiceBuilder constructor config
          * instance overrides passed to get() method
-         * 
+         *
          */
         $wordContainer = $squirtServiceBuilder->get('WORD_CONTAINER', array(
             'fourth' => 'card'
@@ -69,7 +69,7 @@ class SquirtServiceBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('majesty', $wordContainer['third'], 'reads from constructor config');
         $this->assertEquals('card', $wordContainer['fourth'], 'reads from get overrides');
     }
-    
+
     public function testSimpleGet()
     {
         $squirtServiceBuilder = SquirtServiceBuilder::factory(array(
@@ -84,16 +84,16 @@ class SquirtServiceBuilderTest extends \PHPUnit_Framework_TestCase
                 )
             )
         ));
-        
+
         $container = $squirtServiceBuilder->get('CONTAINER', array(
             'color' => 'red'
         ));
-        
+
         $this->assertInstanceOf('Squirt\Common\Container', $container);
         $this->assertEquals('phlogiston', $container['word'], 'sets parameters in config');
         $this->assertEquals('red', $container['color'], 'sets parameters in get');
     }
-    
+
     /**
      * Test that services can extend each other, replacing parameters
      * of the same name, even at a deep level
@@ -125,20 +125,20 @@ class SquirtServiceBuilderTest extends \PHPUnit_Framework_TestCase
                 )
             )
         ));
-        
+
         $container1 = $squirtServiceBuilder->get('CONTAINER_1');
         $container2 = $squirtServiceBuilder->get('CONTAINER_2');
-        
+
         $this->assertInstanceOf('Squirt\Common\Container', $container1);
         $this->assertInstanceOf('Squirt\Common\Container', $container2);
-        
+
         /*
          * Test that container1 has values as configured
          */
         $this->assertEquals('phlogiston', $container1['word']);
         $this->assertEquals('bar', $container1['foo']);
         $this->assertEquals(array('mood' => 'sad'), $container1['deep']);
-        
+
         /*
          * Test that container2 overrides parameters, but otherwise keeps
          * values from container1
@@ -146,7 +146,7 @@ class SquirtServiceBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('phlogiston', $container2['word']);
         $this->assertEquals('baz', $container2['foo']);
         $this->assertEquals(array('mood' => 'happy'), $container2['deep']);
-        
+
         /*
          * Test that container2 can be further overridden at a deep level
          * from the get line
@@ -162,7 +162,7 @@ class SquirtServiceBuilderTest extends \PHPUnit_Framework_TestCase
             'animal' => 'manta'
         ), $container2['deep']);
     }
-    
+
     public function testAliasedGet()
     {
         $squirtServiceBuilder = SquirtServiceBuilder::factory(array(
@@ -181,17 +181,17 @@ class SquirtServiceBuilderTest extends \PHPUnit_Framework_TestCase
                 )
             )
         ));
-        
+
         $instance = $squirtServiceBuilder->get('THING');
         $this->assertInstanceOf('Squirt\Common\Container', $instance);
-        
+
         $instance = $squirtServiceBuilder->get('CONTAINER');
         $this->assertInstanceOf('Squirt\Common\Container', $instance);
-        
+
         $instance = $squirtServiceBuilder->get('BOX');
         $this->assertInstanceOf('Squirt\Common\Container', $instance);
     }
-    
+
     public function testCachedGet()
     {
         $squirtServiceBuilder = SquirtServiceBuilder::factory(array(
@@ -204,29 +204,29 @@ class SquirtServiceBuilderTest extends \PHPUnit_Framework_TestCase
                 )
             )
         ));
-        
+
         $instance1 = $squirtServiceBuilder->get('CONTAINER');
         $instance2 = $squirtServiceBuilder->get('CONTAINER', array());
         $instance3 = $squirtServiceBuilder->get('CONTAINER', null, false);
         $instance4 = $squirtServiceBuilder->get('CONTAINER');
         $instance5 = $squirtServiceBuilder->get('CONTAINER', null, true);
-        
+
         /*
          * Because they were both obtained with no arguments, these
          * instances should be the same
          */
         $this->assertSame($instance1, $instance4);
-        
+
         /*
          * Because instance5 was instantiated with the defauls
          * it should also use the cached version of the instance1
          */
         $this->assertSame($instance1, $instance5);
-        
+
         $this->assertNotSame($instance1, $instance2);
         $this->assertNotSame($instance1, $instance3);
     }
-    
+
     /**
      * @expectedException \LogicException
      */
@@ -254,12 +254,12 @@ class SquirtServiceBuilderTest extends \PHPUnit_Framework_TestCase
                 )
             )
         ));
-        
+
         $container1 = $squirtServiceBuilder->get('CONTAINER1');
-        
+
         $this->fail('Should not get past a bad config');
     }
-    
+
     public function testSimpleGetConfig()
     {
         $squirtServiceBuilder = SquirtServiceBuilder::factory(array(

@@ -18,16 +18,16 @@ class RedisCache extends DoctrineRedisCache implements SquirtableInterface
     public static function factory(array $params=array())
     {
         $instance = new static();
-        
+
         $redis = SquirtUtil::validateParamClass('redis', '\Redis', $params);
         $instance->setRedis($redis);
-        
+
         $namespace =
             SquirtUtil::validateStringParamWithDefault('namespace', $params, 'squirt');
         if (strlen($namespace) > 0) {
             $instance->setNamespace($namespace);
         }
-    
+
         return $instance;
     }
 }
