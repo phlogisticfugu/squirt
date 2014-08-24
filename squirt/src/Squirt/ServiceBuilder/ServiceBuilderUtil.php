@@ -1,6 +1,9 @@
 <?php
 namespace Squirt\ServiceBuilder;
 
+/**
+ * This class contains utility functions used internally by the ServiceBuilder
+ */
 final class ServiceBuilderUtil
 {
     
