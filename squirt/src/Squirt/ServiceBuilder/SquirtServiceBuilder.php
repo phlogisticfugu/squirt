@@ -88,7 +88,7 @@ class SquirtServiceBuilder implements SquirtableInterface
      */
     public function get($serviceName, $instanceParams=null, $allowCache=true)
     {
-        return $this->actuallyGet($serviceName, $instanceParams, $allowCache);
+        return $this->actuallyGet($serviceName, $instanceParams, $allowCache, array());
     }
 
     /**
@@ -133,8 +133,12 @@ class SquirtServiceBuilder implements SquirtableInterface
      * Execute the actual code to get a service instance, but with some extra state maintained
      * in the calls
      */
-    protected function actuallyGet($serviceName, $instanceParams, $allowCache, $requestedServiceNameSet=array())
-    {
+    protected function actuallyGet(
+        $serviceName,
+        $instanceParams,
+        $allowCache,
+        array $requestedServiceNameSet
+    ) {
         $useCache = ($allowCache && (null === $instanceParams));
 
         /*
