@@ -34,155 +34,167 @@ Basic Example
 
 *app_config.php* - squirt config file
 
-    return array(
-        'services' => array(
-            'LOGGER' => array(
-                'class' => 'MyApp\Logger',
-                'params' => array(
-                    'logFile' => '/var/log/app.log'
-                )
-            ),
-            'GUZZLE_CLIENT' => array(
-                'class' => 'MyApp\GuzzleClient'
-            ),
-            'APP' => array(
-                'class' => 'MyApp\App',
-                'params' => array(
-                    'logger' => '{LOGGER}',
-                    'client' => '{GUZZLE_CLIENT}',
-                    'url' => 'https://github.com'
-                )
+```php
+return array(
+    'services' => array(
+        'LOGGER' => array(
+            'class' => 'MyApp\Logger',
+            'params' => array(
+                'logFile' => '/var/log/app.log'
+            )
+        ),
+        'GUZZLE_CLIENT' => array(
+            'class' => 'MyApp\GuzzleClient'
+        ),
+        'APP' => array(
+            'class' => 'MyApp\App',
+            'params' => array(
+                'logger' => '{LOGGER}',
+                'client' => '{GUZZLE_CLIENT}',
+                'url' => 'https://github.com'
             )
         )
-    );
+    )
+);
+```
 
 \* Note that there is no code in the configuration, so it can be cached and stored as data.
   And configuration permits normal PHP comments to provide clarity when needed.
 
 *MyApp/App.php* - squirt-compatible end-user class
 
-    namespace MyApp;
-    
-    use Squirt\Common\SquirtableInterface;
-    use Squirt\Common\SquirtableTrait;
-    use Squirt\Common\SquirtUtil;
- 
-    class App implements SquirtableInterface
+```php
+namespace MyApp;
+
+use Squirt\Common\SquirtableInterface;
+use Squirt\Common\SquirtableTrait;
+use Squirt\Common\SquirtUtil;
+
+class App implements SquirtableInterface
+{
+    use SquirtableTrait;
+
+    private $logger;
+
+    private $client;
+
+    private $url;
+
+    protected function __construct(array $params)
     {
-        use SquirtableTrait;
+        /*
+         * Validate values from the $params and set them in our instance.
+         * Using squirt utility functions that assist with this common task
+         * and throw an InvalidArgumentException when there's a problem.
+         *
+         * This is the equivalent of adding validation to:
+         * $this->logger = $params['logger'];
+         * $this->client = $params['client'];
+         * $this->url = $params['url'];
+         */
+        $this->logger =
+        SquirtUtil::validateParamClass('logger', 'Monolog\Logger', $params);
 
-        private $logger;
+        $this->client =
+        SquirtUtil::validateParamClass('client', 'GuzzleHttp\Client', $params);
 
-        private $client;
-
-        private $url;
-
-        protected function __construct(array $params)
-        {
-            /*
-             * Validate values from the $params and set them in our instance.
-             * Using squirt utility functions that assist with this common task
-             * and throw an InvalidArgumentException when there's a problem.
-             *
-             * This is the equivalent of adding validation to:
-             * $this->logger = $params['logger'];
-             * $this->client = $params['client'];
-             * $this->url = $params['url'];
-             */
-            $this->logger =
-                SquirtUtil::validateParamClass('logger', 'Monolog\Logger', $params);
-
-            $this->client =
-                SquirtUtil::validateParamClass('client', 'GuzzleHttp\Client', $params);
-
-            $this->url = SquirtUtil::validateParam('url', $params);
-        }
-
-        public function run()
-        {
-            $response = $this->client->get($this->url);           
-
-            $this->logger->info('Got result: ' . $response->getBody());
-        }
+        $this->url = SquirtUtil::validateParam('url', $params);
     }
+
+    public function run()
+    {
+        $response = $this->client->get($this->url);
+
+        $this->logger->info('Got result: ' . $response->getBody());
+    }
+}
+```
 
 \* Note that there is no configuration in the code, for proper separation
 
 *MyApp/Logger.php* - squirt-compatible wrapper for a Monolog Logger
 
-    namespace MyApp;
+```php
+namespace MyApp;
 
-    use Squirt\Common\SquirtableInterface;
-    use Squirt\Common\SquirtUtil;
-    use Monolog\Logger as MonologLogger;
-    use Monolog\Handler\StreamHandler;
+use Squirt\Common\SquirtableInterface;
+use Squirt\Common\SquirtUtil;
+use Monolog\Logger as MonologLogger;
+use Monolog\Handler\StreamHandler;
 
-    class Logger extends MonologLogger implements SquirtableInterface
+class Logger extends MonologLogger implements SquirtableInterface
+{
+    public static function factory(array $params=array())
     {
-        public static function factory(array $params=array())
-        {
-            $logFile = SquirtUtil::validateParam('logFile', $params);
+        $logFile = SquirtUtil::validateParam('logFile', $params);
 
-            $instance = new static();
-            $instance->pushHandler(new StreamHandler($logFile));
+        $instance = new static();
+        $instance->pushHandler(new StreamHandler($logFile));
 
-            return $instance;
-        }
+        return $instance;
     }
+}
+```
 
 *MyApp/GuzzleClient.php* - squirt-compatible wrapper for a Guzzle 4 Client
 
-    namespace MyApp;
+```php
+namespace MyApp;
 
-    use Squirt\Common\SquirtableInterface;
-    use Squirt\Common\SquirtableTrait;
-    use GuzzleHttp\Client;
+use Squirt\Common\SquirtableInterface;
+use Squirt\Common\SquirtableTrait;
+use GuzzleHttp\Client;
 
-    class GuzzleClient extends Client implements SquirtableInterface
-    {
-        /*
-         * Squirt provides traits to help with common cases for making
-         * squirt-compatible wrapper classes
-         */
-        use SquirtableTrait;
-    }
+class GuzzleClient extends Client implements SquirtableInterface
+{
+    /*
+     * Squirt provides traits to help with common cases for making
+    * squirt-compatible wrapper classes
+    */
+    use SquirtableTrait;
+}
+```
 
 *run.php* - normal squirt service-consuming script
 
-    use Squirt\ServiceBuilder\SquirtServiceBuilder;
+```php
+use Squirt\ServiceBuilder\SquirtServiceBuilder;
 
-    require 'vendor/autoload.php'; // Composer class autoloader
+require 'vendor/autoload.php'; // Composer class autoloader
 
-    $squirtServiceBuilder = SquirtServiceBuilder::factory(array(
-        'fileName' => 'app_config.php'
-    ));
+$squirtServiceBuilder = SquirtServiceBuilder::factory(array(
+    'fileName' => 'app_config.php'
+));
 
-    $app = $squirtServiceBuilder->get('APP');
+$app = $squirtServiceBuilder->get('APP');
 
-    $app->run();
+$app->run();
+```
 
 *run_nonsquirt.php* - squirt-compatible classes can be run even without squirt if necessary
 
-    use MyApp\App;
-    use MyApp\Logger;
-    use MyApp\GuzzleClient;
+```php
+use MyApp\App;
+use MyApp\Logger;
+use MyApp\GuzzleClient;
 
-    require 'vendor/autoload.php'; // Composer class autoloader
+require 'vendor/autoload.php'; // Composer class autoloader
 
-    // Classes can be used even without squirt
-    $logger = Logger::factory(array(
-        'logFile' => '/var/log/app.log'
-    ));
+// Classes can be used even without squirt
+$logger = Logger::factory(array(
+    'logFile' => '/var/log/app.log'
+));
 
-    $client = GuzzleClient::factory();
+$client = GuzzleClient::factory();
 
-    $app = App::factory(array(
-        'logger' => $logger,
-        'client' => $client,
-        'url' => 'https://github.com'
-    ));
+$app = App::factory(array(
+    'logger' => $logger,
+    'client' => $client,
+    'url' => 'https://github.com'
+));
 
-    $app->run();
+$app->run();
+```
 
 Installation
 ------------
@@ -208,54 +220,58 @@ those files, configuration files may include one another.
 
 example:
 
-    return array(
-        'includes' => array(
-            'aws_config.php',
-            'database_config.php',
-            'production_logger_config.php'
-        ),
-        'services' => array(
-            // service definitions which depend on services defined elsewhere
-        )
-    );
+```php
+return array(
+    'includes' => array(
+        'aws_config.php',
+        'database_config.php',
+        'production_logger_config.php'
+    ),
+    'services' => array(
+        // service definitions which depend on services defined elsewhere
+    )
+);
+```
 
 Squirt services can also extend one another, to permit configuration re-use
 and a cascade of defaults in a sensible manner.
 
 example:
 
-    return array(
-        'includes' => array(
-            'production_logger_config.php'
+```php
+return array(
+    'includes' => array(
+        'production_logger_config.php'
+    ),
+    'services' => array(
+        'ABSTRACT_HTTP_CLIENT' => array(
+            'class' => 'MyApp\HttpClient',
+            'params' => array(
+                'logger' => '{LOGGER}',
+                'http_options' => array(
+                    'timeout' => 10
+                )
+            )
         ),
-        'services' => array(
-            'ABSTRACT_HTTP_CLIENT' => array(
-                'class' => 'MyApp\HttpClient',
-                'params' => array(
-                     'logger' => '{LOGGER}',
-                     'http_options' => array(
-                         'timeout' => 10
-                     )
-                )
-            ),
-            'GITHUB_HTTP_CLIENT' => array(
-                'extends' => 'ABSTRACT_HTTP_CLIENT',
-                'params' => array(
-                    'url' => 'https://github.com'
-                )
-            ),
-            'AMAZON_HTTP_CLIENT' => array(
-                'extends' => 'ABSTRACT_HTTP_CLIENT',
-                'params' => array(
-                    'url' => 'https://www.amazon.com',
-                     'http_options' => array(
-                         // overrides value from ABSTRACT_HTTP_CLIENT
-                         'timeout' => 60
-                     )
+        'GITHUB_HTTP_CLIENT' => array(
+            'extends' => 'ABSTRACT_HTTP_CLIENT',
+            'params' => array(
+                'url' => 'https://github.com'
+            )
+        ),
+        'AMAZON_HTTP_CLIENT' => array(
+            'extends' => 'ABSTRACT_HTTP_CLIENT',
+            'params' => array(
+                'url' => 'https://www.amazon.com',
+                'http_options' => array(
+                    // overrides value from ABSTRACT_HTTP_CLIENT
+                    'timeout' => 60
                 )
             )
         )
-    );
+    )
+);
+```
 
 \* Note that squirt supports deep overrides for configuration parameters
 
@@ -265,11 +281,13 @@ configuration.
 
 example:
 
-    $amazonHttpClient = $squirtServiceBuilder->get('AMAZON_HTTP_CLIENT', array(
-        'http_options' => array(
-            'timeout' => 90
-        )
-    ));
+```php
+$amazonHttpClient = $squirtServiceBuilder->get('AMAZON_HTTP_CLIENT', array(
+    'http_options' => array(
+        'timeout' => 90
+    )
+));
+```
 
 \* Note that squirt-configured services are normally cached so they behave like singletons,
 preventing unecessary instantiation.  However, providing override parameters to the `get()` method
@@ -284,20 +302,24 @@ a prefix parameter, which is added to all services defined in that file.
 
 example:
 
-    return array(
-        'prefix' => 'ADMIN',
-        'services' => array(
-            'APP' => array( ... ),
-            'LOADER' => array( ... )
-        )
-    );
+```php
+return array(
+    'prefix' => 'ADMIN',
+    'services' => array(
+        'APP' => array( /* ... */ ),
+        'LOADER' => array( /* ... */ )
+    )
+);
+```
 
 behaves the same as if one had instead used:
 
-    return array(
-        'services' => array(
-            'ADMIN.APP' => array( ... ),
-            'ADMIN.LOADER' => array( ... )
-        )
-    );
+```php
+return array(
+    'services' => array(
+        'ADMIN.APP' => array( /* ... */ ),
+        'ADMIN.LOADER' => array( /* ... */ )
+    )
+);
+```
 
