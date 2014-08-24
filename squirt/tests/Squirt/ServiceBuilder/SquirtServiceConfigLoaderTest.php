@@ -193,7 +193,7 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
         $serviceConfig = $squirtServiceConfigLoader->loadFile($configFileName);
         $this->assertTrue(is_array($serviceConfig), 'loadFile returns an array');
         $this->assertEquals(array(
-            'TEST' => array(
+            'LAMB.TEST' => array(
                 'class' => 'Squirt\ServiceBuilder\SquirtServiceConfigLoader'
             ),
             'WOLF.WORD_CONTAINER' => array(
@@ -204,6 +204,12 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
                     'third' => 'replaceme:include_config.php',
                     'fourth' => 'replaceme:include_config.php'
                 )
+            ),
+            'NUMBER_CONTAINER' => array(
+                'class' => 'Squirt\Common\Container',
+                'params' => array(
+                    'data' => array(1,1,2,3,5,8,13)
+                )
             )
         ), $serviceConfig);
         
@@ -213,7 +219,7 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
         $serviceConfig = $squirtServiceConfigLoader->loadFile($configFileName);
         $this->assertTrue(is_array($serviceConfig), 'loadFile returns an array');
         $this->assertEquals(array(
-            'TEST' => array(
+            'LAMB.TEST' => array(
                 'class' => 'Squirt\ServiceBuilder\SquirtServiceConfigLoader'
             ),
             'WOLF.WORD_CONTAINER' => array(
@@ -223,6 +229,12 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
                     'second' => 'replaceme:include_config.php',
                     'third' => 'replaceme:include_config.php',
                     'fourth' => 'replaceme:include_config.php'
+                )
+            ),
+            'NUMBER_CONTAINER' => array(
+                'class' => 'Squirt\Common\Container',
+                'params' => array(
+                    'data' => array(1,1,2,3,5,8,13)
                 )
             )
         ), $serviceConfig);

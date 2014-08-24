@@ -103,24 +103,37 @@ class SquirtServiceConfigLoader implements SquirtableInterface
             }
         }
     
-        /*
-         * Apply any prefixing to finalize the names of our services
-        */
-        if (isset($params['services'])) {
-            $serviceConfig = ServiceBuilderUtil::mergeConfig(
-                $serviceConfig,
-                $this->applyPrefix($params));
-        }
-    
         if (empty($params['prefix'])) {
             $prefix = '';
         } else {
             $prefix = $params['prefix'];
         }
+        
+        /*
+         * Process the services defined in this current configuration
+         */
+        if (array_key_exists('services', $params)) {
+            
+            $services = $params['services'];
+            
+            /*
+             * Apply any prefixing to finalize the names of our services
+            */
+            if (strlen($prefix) > 0) {
+                $services = $this->applyPrefix($services, $prefix);
+            }
+            
+            /*
+             * Merge these services in with what we are preparing for output
+             */
+            $serviceConfig = ServiceBuilderUtil::mergeConfig(
+                $serviceConfig,
+                $services);
+        }
     
         /*
          * Implement any extending of services
-        */
+         */
         $outServiceConfig = array();
         foreach (array_keys($serviceConfig) as $serviceName) {
             $config = $this->applyServiceExtension($serviceName, $serviceConfig, $prefix);
@@ -228,21 +241,14 @@ class SquirtServiceConfigLoader implements SquirtableInterface
      * @param array $params
      * @return array $serviceConfig
      */
-    protected function applyPrefix(array $params)
+    protected function applyPrefix(array $services, $prefix)
     {
-        $serviceConfig = array();
+        $outServices = array();
         
-        if ((! empty($params['prefix'])) && is_string($params['prefix'])) {
-            $prefix = $params['prefix'];
-            
-            foreach ($params['services'] as $serviceName => $config) {
-                $serviceConfig[$prefix . '.' . $serviceName] = $config;
-            }
-            
-        } else {
-            $serviceConfig = $params['services'];
+        foreach ($services as $serviceName => $config) {
+            $outServices[$prefix . '.' . $serviceName] = $config;
         }
         
-        return $serviceConfig;
+        return $outServices;
     }
 }
