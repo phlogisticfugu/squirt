@@ -21,6 +21,18 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      * @depends testInstantiate
      * @param Container $container
      */
+    public function testToArray(Container $container)
+    {
+        $array = $container->toArray();
+
+        $this->assertTrue(is_array($array), 'toArray returns an array');
+        $this->assertEquals('blue', $array['color']);
+    }
+
+    /**
+     * @depends testInstantiate
+     * @param Container $container
+     */
     public function testArrayAccess(Container $container)
     {
         $this->assertEquals('blue', $container['color']);

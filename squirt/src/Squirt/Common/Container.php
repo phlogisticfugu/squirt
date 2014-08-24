@@ -22,6 +22,11 @@ class Container implements SquirtableInterface, \ArrayAccess, \IteratorAggregate
         $this->data = $params;
     }
 
+    public function toArray()
+    {
+        return $this->data;
+    }
+
     /**
      * (non-PHPdoc)
      * @see ArrayAccess::offsetExists()
@@ -58,11 +63,19 @@ class Container implements SquirtableInterface, \ArrayAccess, \IteratorAggregate
         unset($this->data[$offset]);
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see IteratorAggregate::getIterator()
+     */
     public function getIterator()
     {
         return new \ArrayIterator($this->data);
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see Countable::count()
+     */
     public function count()
     {
         return count($this->data);
