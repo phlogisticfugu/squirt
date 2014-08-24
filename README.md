@@ -6,6 +6,8 @@ Simple and lightweight PHP dependency injection.
 It is inspired by the ServiceBuilder in [Guzzle 3](https://github.com/guzzle/guzzle3),
 but simplifies and expands upon that.
 
+see the [[wiki|Home]]
+
 Why squirt?
 -----------
 
