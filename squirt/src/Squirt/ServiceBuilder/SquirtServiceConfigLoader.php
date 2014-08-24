@@ -24,6 +24,12 @@ class SquirtServiceConfigLoader implements SquirtableInterface
      */
     protected $cache;
     
+    /**
+     * The number of seconds that we can cache a single configuration
+     * @var integer
+     */
+    protected $cacheLifetimeSeconds;
+    
     protected function __construct(array $params)
     {
         
@@ -35,6 +41,10 @@ class SquirtServiceConfigLoader implements SquirtableInterface
                 return new ArrayCache();
             }
         );
+        
+        $this->cacheLifetimeSeconds =
+            SquirtUtil::validateNumericParamWithDefault(
+                'cacheLifetimeSeconds', $params, 0);
     }
     
     /**
@@ -141,8 +151,9 @@ class SquirtServiceConfigLoader implements SquirtableInterface
         /*
          * Use any cached value we can
          */
-        if ($this->cache->contains($fileName)) {
-            return json_decode($this->cache->fetch($fileName), true);
+        $cachedConfigJSON = $this->cache->fetch($fileName);
+        if (false !== $cachedConfigJSON) {
+            return json_decode($cachedConfigJSON, true);
         }
         
         if (! file_exists($fileName)) {
@@ -158,7 +169,7 @@ class SquirtServiceConfigLoader implements SquirtableInterface
         /*
          * Cache this serviceConfig
          */
-        $this->cache->save($fileName, json_encode($serviceConfig));
+        $this->cache->save($fileName, json_encode($serviceConfig), $this->cacheLifetimeSeconds);
         
         return $serviceConfig;
     }
