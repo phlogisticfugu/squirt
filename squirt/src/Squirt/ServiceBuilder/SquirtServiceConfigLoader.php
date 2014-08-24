@@ -117,6 +117,11 @@ class SquirtServiceConfigLoader implements SquirtableInterface
             $services = $params['services'];
             
             /*
+             * Expand any aliases on the services
+             */
+            $services = $this->applyServiceAliases($services);
+            
+            /*
              * Apply any prefixing to the names of our services
              * but only the ones in this file
              */
@@ -136,7 +141,8 @@ class SquirtServiceConfigLoader implements SquirtableInterface
          * Implement any extending of services
          */
         $outServiceConfig = array();
-        foreach (array_keys($serviceConfig) as $serviceName) {
+        $serviceNameArray = array_keys($serviceConfig);
+        foreach ($serviceNameArray as $serviceName) {
             $config = $this->applyServiceExtension($serviceName, $serviceConfig, $prefix);
     
             $outServiceConfig[$serviceName] = $config;
@@ -184,6 +190,35 @@ class SquirtServiceConfigLoader implements SquirtableInterface
          * Cache this serviceConfig
          */
         $this->cache->save($fileName, json_encode($serviceConfig), $this->cacheLifetimeSeconds);
+        
+        return $serviceConfig;
+    }
+    
+    protected function applyServiceAliases(array $serviceConfig)
+    {
+        $serviceNameArray = array_keys($serviceConfig);
+        
+        foreach ($serviceNameArray as $serviceName) {
+            $config = $serviceConfig[$serviceName];
+            
+            if (isset($config['aliases']) && is_array($config['aliases'])) {
+                $aliases = $config['aliases'];
+                
+                /*
+                 * Delete the aliases after we grabbed them
+                 * so that they dont make their way into processed and optimized
+                 * values
+                 */
+                unset($config['aliases']);
+                
+                /*
+                 * Make copies of the configuration under each alias
+                 */
+                foreach($aliases as $alias) {
+                    $serviceConfig[$alias] = $config;
+                }
+            }
+        }
         
         return $serviceConfig;
     }

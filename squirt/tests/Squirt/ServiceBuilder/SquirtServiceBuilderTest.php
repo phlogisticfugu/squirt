@@ -163,6 +163,35 @@ class SquirtServiceBuilderTest extends \PHPUnit_Framework_TestCase
         ), $container2['deep']);
     }
     
+    public function testAliasedGet()
+    {
+        $squirtServiceBuilder = SquirtServiceBuilder::factory(array(
+            'config' => array(
+                'services' => array(
+                    'THING' => array(
+                        'class' => 'Squirt\Common\Container',
+                        'aliases' => array(
+                            'CONTAINER',
+                            'BOX'
+                        ),
+                        'params' => array(
+                            'foo' => 'phlogiston'
+                        )
+                    )
+                )
+            )
+        ));
+        
+        $instance = $squirtServiceBuilder->get('THING');
+        $this->assertInstanceOf('Squirt\Common\Container', $instance);
+        
+        $instance = $squirtServiceBuilder->get('CONTAINER');
+        $this->assertInstanceOf('Squirt\Common\Container', $instance);
+        
+        $instance = $squirtServiceBuilder->get('BOX');
+        $this->assertInstanceOf('Squirt\Common\Container', $instance);
+    }
+    
     public function testCachedGet()
     {
         $squirtServiceBuilder = SquirtServiceBuilder::factory(array(
