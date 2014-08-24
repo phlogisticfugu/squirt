@@ -117,8 +117,9 @@ class SquirtServiceConfigLoader implements SquirtableInterface
             $services = $params['services'];
             
             /*
-             * Apply any prefixing to finalize the names of our services
-            */
+             * Apply any prefixing to the names of our services
+             * but only the ones in this file
+             */
             if (strlen($prefix) > 0) {
                 $services = $this->applyPrefix($services, $prefix);
             }
