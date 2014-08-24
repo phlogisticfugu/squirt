@@ -139,7 +139,7 @@ class SquirtServiceBuilder implements SquirtableInterface
 
         /*
          * Use a cached service if possible
-        */
+         */
         if ($useCache) {
             if (array_key_exists($serviceName, $this->instantiatedNameServiceCache)) {
                 return $this->instantiatedNameServiceCache[$serviceName];
@@ -148,7 +148,7 @@ class SquirtServiceBuilder implements SquirtableInterface
 
         /*
          * No cached instance already exists, so start building one
-        */
+         */
         $requestedServiceNameSet[$serviceName] = true;
 
         $config = $this->getConfig($serviceName, $instanceParams);
@@ -156,19 +156,19 @@ class SquirtServiceBuilder implements SquirtableInterface
 
         /*
          * Lookup any references to other services in the parameters
-        * for this service
-        */
+         * for this service
+         */
         $params = $this->processParams($params, $allowCache, $requestedServiceNameSet);
 
         /*
          * Actually construct the service
-        */
+         */
         $class = $config['class'];
         $service = $class::factory($params);
 
         /*
          * Do some caching as appropriate
-        */
+         */
         if ($useCache) {
             $this->instantiatedNameServiceCache[$serviceName] = $service;
         }

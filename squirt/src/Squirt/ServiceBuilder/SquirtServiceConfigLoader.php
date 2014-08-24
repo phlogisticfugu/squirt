@@ -83,16 +83,16 @@ class SquirtServiceConfigLoader implements SquirtableInterface
 
         /*
          * Load any includes
-        */
+         */
         if (isset($params['includes'])) {
             if (is_array($params['includes'])) {
                 foreach ($params['includes'] as $fileName) {
 
                     /*
                      * Recursively load configurations, permitting later
-                    * includes to override earlier ones, even if the service
-                    * names collide
-                    */
+                     * includes to override earlier ones, even if the service
+                     * names collide
+                     */
                     $serviceConfig = ServiceBuilderUtil::mergeConfig(
                         $serviceConfig,
                         $this->actuallyLoadFile($fileName, $loadedFileNameArray));
