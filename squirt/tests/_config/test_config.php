@@ -9,6 +9,12 @@ return array(
     'services' => array(
         'TEST' => array(
             'class' => 'Squirt\ServiceBuilder\SquirtServiceConfigLoader'
+        ),
+        'TEST2' => array(
+            'extends' => 'TEST'
+        )
+        ,'TEST3' => array(
+            'extends' => 'LAMB.TEST'
         )
     ) 
 );

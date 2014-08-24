@@ -107,7 +107,6 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
          * as well
          */
         $this->assertEquals(array(
-            'extends' => 'abstract_service',
             'params' => array(
                 'color' => 'red'
             ),
@@ -120,7 +119,6 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
          * and overrides the color
          */
         $this->assertEquals(array(
-            'extends' => 'SQUIRT.SERVICE_CONFIG_LOADER',
             'params' => array(
                 'color' => 'blue',
                 'hat' => 'fedora'
@@ -167,7 +165,6 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
         $container2Config = $serviceConfig['CONTAINER2'];
         $this->assertEquals(array(
             'class' => 'Squirt\Common\Container',
-            'extends' => 'CONTAINER1',
             'params' => array(
                 'data' => array('a', 'b', 'c'),
                 'deep' => array(
@@ -187,13 +184,14 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
         $configFileName = SQUIRT_TEST_DIR
             . join(DIRECTORY_SEPARATOR, array('', '_config', 'test_config.php'));
         
-        /*
-         * Try an initial load (noting that this is stored in the cache)
-         */
-        $serviceConfig = $squirtServiceConfigLoader->loadFile($configFileName);
-        $this->assertTrue(is_array($serviceConfig), 'loadFile returns an array');
-        $this->assertEquals(array(
+        $expected = array(
             'LAMB.TEST' => array(
+                'class' => 'Squirt\ServiceBuilder\SquirtServiceConfigLoader'
+            ),
+            'LAMB.TEST2' => array(
+                'class' => 'Squirt\ServiceBuilder\SquirtServiceConfigLoader'
+            ),
+            'LAMB.TEST3' => array(
                 'class' => 'Squirt\ServiceBuilder\SquirtServiceConfigLoader'
             ),
             'WOLF.WORD_CONTAINER' => array(
@@ -211,33 +209,21 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
                     'data' => array(1,1,2,3,5,8,13)
                 )
             )
-        ), $serviceConfig);
+        );
+        
+        /*
+         * Try an initial load (noting that this is stored in the cache)
+         */
+        $serviceConfig = $squirtServiceConfigLoader->loadFile($configFileName);
+        $this->assertTrue(is_array($serviceConfig), 'loadFile returns an array');
+        $this->assertEquals($expected, $serviceConfig);
         
         /*
          * Try a second load, using the cache
          */
         $serviceConfig = $squirtServiceConfigLoader->loadFile($configFileName);
         $this->assertTrue(is_array($serviceConfig), 'loadFile returns an array');
-        $this->assertEquals(array(
-            'LAMB.TEST' => array(
-                'class' => 'Squirt\ServiceBuilder\SquirtServiceConfigLoader'
-            ),
-            'WOLF.WORD_CONTAINER' => array(
-                'class' => 'Squirt\Common\Container',
-                'params' => array(
-                    'first' => 'exciting',
-                    'second' => 'replaceme:include_config.php',
-                    'third' => 'replaceme:include_config.php',
-                    'fourth' => 'replaceme:include_config.php'
-                )
-            ),
-            'NUMBER_CONTAINER' => array(
-                'class' => 'Squirt\Common\Container',
-                'params' => array(
-                    'data' => array(1,1,2,3,5,8,13)
-                )
-            )
-        ), $serviceConfig);
+        $this->assertEquals($expected, $serviceConfig);
     }
     
     /**

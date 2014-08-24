@@ -228,6 +228,7 @@ class SquirtServiceConfigLoader implements SquirtableInterface
          */
         if (isset($config['extends'])) {
             $parentService = $config['extends'];
+            unset($config['extends']);
             
             $parentConfig = $this->applyServiceExtension($parentService, $serviceConfig, $prefix);
             
