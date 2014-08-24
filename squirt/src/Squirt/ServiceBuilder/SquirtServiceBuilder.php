@@ -135,10 +135,12 @@ class SquirtServiceBuilder implements SquirtableInterface
      */
     protected function actuallyGet($serviceName, $instanceParams, $allowCache, $requestedServiceNameSet=array())
     {
+        $useCache = ($allowCache && (null === $instanceParams));
+        
         /*
          * Use a cached service if possible
         */
-        if ($allowCache && (null === $instanceParams)) {
+        if ($useCache) {
             if (array_key_exists($serviceName, $this->instantiatedNameServiceCache)) {
                 return $this->instantiatedNameServiceCache[$serviceName];
             }
@@ -167,7 +169,7 @@ class SquirtServiceBuilder implements SquirtableInterface
         /*
          * Do some caching as appropriate
         */
-        if ($allowCache && (null === $instanceParams)) {
+        if ($useCache) {
             $this->instantiatedNameServiceCache[$serviceName] = $service;
         }
     
