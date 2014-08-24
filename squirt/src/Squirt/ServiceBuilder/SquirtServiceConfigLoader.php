@@ -9,6 +9,7 @@ use Squirt\Exception\NoSuchServiceException;
 use Squirt\Common\SquirtableInterface;
 use Squirt\Common\SquirtableLoggingTrait;
 use Squirt\Common\SquirtUtil;
+use Squirt\ServiceBuilder\ServiceBuilderUtil;
 
 /**
  * This class is used to deal with the loading and processing
@@ -82,7 +83,7 @@ class SquirtServiceConfigLoader implements SquirtableInterface
                     * includes to override earlier ones, even if the service
                     * names collide
                     */
-                    $serviceConfig = array_replace_recursive(
+                    $serviceConfig = ServiceBuilderUtil::mergeConfig(
                         $serviceConfig,
                         $this->actuallyLoadFile($fileName, $loadedFileNameArray));
                 }
@@ -96,7 +97,7 @@ class SquirtServiceConfigLoader implements SquirtableInterface
          * Apply any prefixing to finalize the names of our services
         */
         if (isset($params['services'])) {
-            $serviceConfig = array_replace_recursive(
+            $serviceConfig = ServiceBuilderUtil::mergeConfig(
                 $serviceConfig,
                 $this->applyPrefix($params));
         }
@@ -205,7 +206,7 @@ class SquirtServiceConfigLoader implements SquirtableInterface
             
             $parentConfig = $this->applyServiceExtension($parentService, $serviceConfig, $prefix);
             
-            $config = array_replace_recursive($parentConfig, $config);
+            $config = ServiceBuilderUtil::mergeConfig($parentConfig, $config);
         }
         
         return $config;

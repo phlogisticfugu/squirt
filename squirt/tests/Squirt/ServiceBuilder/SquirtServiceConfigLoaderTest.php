@@ -9,7 +9,9 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
     {
         $squirtServiceConfigLoader = SquirtServiceConfigLoader::factory();
         
-        $this->assertInstanceOf('Squirt\ServiceBuilder\SquirtServiceConfigLoader', $squirtServiceConfigLoader);
+        $this->assertInstanceOf(
+            'Squirt\ServiceBuilder\SquirtServiceConfigLoader',
+            $squirtServiceConfigLoader);
         
         return $squirtServiceConfigLoader;
     }
@@ -125,6 +127,54 @@ class SquirtServiceConfigLoaderTest extends \PHPUnit_Framework_TestCase
             ),
             'class' => 'Squirt\ServiceBuilder\SquirtServiceConfigLoader'
         ), $serviceConfig['SQUIRT.SERVICE_CONFIG_LOADER2']);
+    }
+    
+    /**
+     * @depends testInstantiate
+     * @param SquirtServiceConfigLoader $squirtServiceConfigLoader
+     */
+    public function testListArrayReplacementLoadFile(SquirtServiceConfigLoader $squirtServiceConfigLoader)
+    {
+        /**
+         * When extending parameters from one service to another
+         * arrays with all integer keys (lists) are completely replaced
+         * instead of recursively replacing individual values, as is done
+         * with associative arrays
+         */
+        $serviceConfig = $squirtServiceConfigLoader->loadConfig(array(
+            'services' => array(
+                'CONTAINER1' => array(
+                    'class' => 'Squirt\Common\Container',
+                    'params' => array(
+                        'data' => array(1,2,3,4,5),
+                        'deep' => array(
+                            'color' => 'red'
+                        )
+                    )
+                ),
+                'CONTAINER2' => array(
+                    'extends' => 'CONTAINER1',
+                    'params' => array(
+                        'data' => array('a', 'b', 'c'),
+                        'deep' => array(
+                            'color' => 'blue'
+                        )
+                    )
+                )
+            )
+        ));
+        $this->assertArrayHasKey('CONTAINER2', $serviceConfig);
+        $container2Config = $serviceConfig['CONTAINER2'];
+        $this->assertEquals(array(
+            'class' => 'Squirt\Common\Container',
+            'extends' => 'CONTAINER1',
+            'params' => array(
+                'data' => array('a', 'b', 'c'),
+                'deep' => array(
+                    'color' => 'blue'
+                )
+            )
+        ), $container2Config);
     }
     
     /**

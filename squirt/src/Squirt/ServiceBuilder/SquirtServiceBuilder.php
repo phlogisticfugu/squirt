@@ -9,6 +9,7 @@ use Squirt\Common\SquirtableInterface;
 use Squirt\Common\SquirtableTrait;
 use Squirt\Common\SquirtUtil;
 use Squirt\ServiceBuilder\SquirtServiceConfigLoader;
+use Squirt\ServiceBuilder\ServiceBuilderUtil;
 
 /**
  * This class is the main interface to Squirt.  A SquirtServiceBuilder
@@ -55,7 +56,8 @@ class SquirtServiceBuilder implements SquirtableInterface
          */
         if (array_key_exists('fileName', $params)) {
             $serviceConfig = $this->squirtServiceConfigLoader->loadFile($params['fileName']);
-            $this->serviceConfig = array_replace_recursive($this->serviceConfig, $serviceConfig);
+            $this->serviceConfig = ServiceBuilderUtil::mergeConfig(
+                $this->serviceConfig, $serviceConfig);
         }
         
         /*
@@ -63,7 +65,8 @@ class SquirtServiceBuilder implements SquirtableInterface
          */
         if (array_key_exists('config', $params)) {
             $serviceConfig = $this->squirtServiceConfigLoader->loadConfig($params['config']);
-            $this->serviceConfig = array_replace_recursive($this->serviceConfig, $serviceConfig);
+            $this->serviceConfig = ServiceBuilderUtil::mergeConfig(
+                $this->serviceConfig, $serviceConfig);
         }
     }
     
@@ -114,7 +117,7 @@ class SquirtServiceBuilder implements SquirtableInterface
          * Apply overrides passed at the time of instantiation
          */
         if (is_array($instanceParams)) {
-            $params = array_replace_recursive($params, $instanceParams);
+            $params = ServiceBuilderUtil::mergeConfig($params, $instanceParams);
         }
         
         $config['params'] = $params;
