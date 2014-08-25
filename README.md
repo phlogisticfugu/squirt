@@ -1,7 +1,7 @@
 squirt
 ======
 
-Simple and lightweight PHP dependency injection.
+Simple and lightweight PHP dependency injection with parameter overrides and more.
 
 It is inspired by the ServiceBuilder in [Guzzle 3](https://github.com/guzzle/guzzle3),
 but simplifies and expands upon that.
@@ -12,22 +12,34 @@ Why squirt?
 -----------
 
 * Provides all the benefits of [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection)
-  via "constructor" like injection
-* Make unit testing easier/possible by permitting the injection of mock objects
-* Separate configuration from code.  Squirt configuration files contain the configuration
-  with details like database logins, connection timeouts, and which classes to instantiate,
-  while your code itself is kept easily reusable and configurable.
-* Keep your code DRY.  Say you inject a common set of objects in multiple situations
-  (e.g. a Logger and a Doctrine DBALConnection), squirt service extensions and config file inclusion
-  let you keep that configuration in one place, instead of scattering it around the codebase.
-  Configurations also cascade, permitting the setting of defaults at multiple levels.
+* Separate configuration from code.  Squirt configuration files contain only configuration
+  (logins, connection timeouts, and which classes to instantiate and inject where) and no code,
+  while code contains only code, and no configuration.
+* Keep your code DRY.  Service configurations can extend each other, to reduce repetition.
+  Dependencies are automatically and recursively injected by name.
+* Supports three modes of injected parameter overrides:
+  * Service configurations can extend and override each other, providing shared default parameters.
+    One can also override the instantiated class with a subclass, if needed.
+  * Configuration files can include and override one another, providing clean package-level defaults which
+    one can override in application code, and integration test configurations that selectively
+    override things like logging and database connections.
+  * End user code can provide selective overrides at instantiation time, to aid in ad-hoc configuration
+    for testing (great for quick debug flags) and troubleshooting.
+* Make unit testing easier/possible.  Mock objects can be injected into instances when unit testing.
+  And configuration file overrides simplify integration tests.
+* Designed for simplicity.  Injected parameters include both injected objects and injected configuration
+  values in a natural manner.  There's only one method to learn: `$squirtServiceBuilder->get()`, as opposed
+  to all the methods in most dependency injection containers.  There are no annotations to learn, and no
+  XML or YAML.
 * Designed for performance.  Squirt config files are written in PHP, so opcode caches
-  already optimize them.  Squirt also supports Doctrine caches on the entire configuration
-  (making use of the fact that configuration is pure data, with no code).
+  already optimize them.  Squirt also supports [Doctrine caches](http://docs.doctrine-project.org/en/2.0.x/reference/caching.html)
+  on the entire configuration
 * Designed for compatibility.  If you use external libraries (and you should), it is very easy to
-  write a wrapper class to add squirt support.
-  You can even use squirt-compatible classes without the squirt service builder;
-  so a squirt-compatible class can be used in frameworks that don't use squirt.
+  write a wrapper class to add squirt support.  All that is needed for Squirt compatibility is a
+  static factory() function which takes in an array of parameters (including injected dependencies and configuration values) and
+  returns an instance.
+  * Amazon's Guzzle3-based [AWS-PHP-SDK](http://docs.aws.amazon.com/aws-sdk-php/guide/latest/index.html) is
+    already compatible.
 
 Basic Example
 -------------
@@ -58,47 +70,56 @@ return array(
 );
 ```
 
-\* Note that there is no code in the configuration, so it can be cached and stored as data.
-  And configuration permits normal PHP comments to provide clarity when needed.
+\* Note that this is all that is needed to define how an application is wired up.
+  There's no DI Container and new methods to learn.  Note also that injected configuration
+  values, like the log file location, are represented naturally alongside injected services.
 
 *MyApp/App.php* - squirt-compatible end-user class
 
 ```php
 namespace MyApp;
 
-use Squirt\Common\SquirtableInterface;
-use Squirt\Common\SquirtableTrait;
-use Squirt\Common\SquirtUtil;
+use Monlog\Logger;
+use GuzzleHttp\Client;
 
-class App implements SquirtableInterface
+class App
 {
-    use SquirtableTrait;
-
     private $logger;
 
     private $client;
 
     private $url;
 
+    public static function factory(array $params=array())
+    {
+        return new static($params);
+    }
+
     protected function __construct(array $params)
     {
         /*
-         * Validate values from the $params and set them in our instance.
-         * Using squirt utility functions that assist with this common task
-         * and throw an InvalidArgumentException when there's a problem.
-         *
-         * This is the equivalent of adding validation to:
-         * $this->logger = $params['logger'];
-         * $this->client = $params['client'];
-         * $this->url = $params['url'];
+         * Read in and validate all of our injected dependencies
+         * Note that the Squirt\Common\SquirtUtil class contains helper functions
+         * which can reduce the repetition below.
          */
-        $this->logger =
-        SquirtUtil::validateParamClass('logger', 'Monolog\Logger', $params);
 
-        $this->client =
-        SquirtUtil::validateParamClass('client', 'GuzzleHttp\Client', $params);
+        if (isset($params['logger']) && ($params['logger'] instanceof Logger)) {
+            $this->logger = $params['logger'];
+        } else {
+            throw new \InvalidArgumentException('Invalid or missing logger');
+        }
 
-        $this->url = SquirtUtil::validateParam('url', $params);
+        if (isset($params['client']) && ($params['client'] instanceof Client)) {
+            $this->client = $params['client'];
+        } else {
+            throw new \InvalidArgumentException('Invalid or missing client');
+        }
+
+        if (! empty($params['url'])) {
+            $this->url = $params['url'];
+        } else {
+            throw new \InvalidArgumentException('Missing url');
+        }
     }
 
     public function run()
@@ -117,16 +138,14 @@ class App implements SquirtableInterface
 ```php
 namespace MyApp;
 
-use Squirt\Common\SquirtableInterface;
-use Squirt\Common\SquirtUtil;
 use Monolog\Logger as MonologLogger;
 use Monolog\Handler\StreamHandler;
 
-class Logger extends MonologLogger implements SquirtableInterface
+class Logger extends MonologLogger
 {
     public static function factory(array $params=array())
     {
-        $logFile = SquirtUtil::validateParam('logFile', $params);
+        $logFile = $params['logFile'];
 
         $instance = new static();
         $instance->pushHandler(new StreamHandler($logFile));
@@ -141,17 +160,14 @@ class Logger extends MonologLogger implements SquirtableInterface
 ```php
 namespace MyApp;
 
-use Squirt\Common\SquirtableInterface;
-use Squirt\Common\SquirtableTrait;
 use GuzzleHttp\Client;
 
-class GuzzleClient extends Client implements SquirtableInterface
+class GuzzleClient extends Client
 {
-    /*
-     * Squirt provides traits to help with common cases for making
-    * squirt-compatible wrapper classes
-    */
-    use SquirtableTrait;
+    public static function factory(array $params=array())
+    {
+        return new static($params);
+    }
 }
 ```
 
@@ -166,12 +182,14 @@ $squirtServiceBuilder = SquirtServiceBuilder::factory(array(
     'fileName' => 'app_config.php'
 ));
 
+// Note that only one service needs to be requested.  All required dependencies
+// are lazily created and injected.
 $app = $squirtServiceBuilder->get('APP');
 
 $app->run();
 ```
 
-*run_nonsquirt.php* - squirt-compatible classes can be run even without squirt if necessary
+*run_nonsquirt.php* - This illustrates what Squirt is doing under the hood.
 
 ```php
 use MyApp\App;
@@ -180,7 +198,6 @@ use MyApp\GuzzleClient;
 
 require 'vendor/autoload.php'; // Composer class autoloader
 
-// Classes can be used even without squirt
 $logger = Logger::factory(array(
     'logFile' => '/var/log/app.log'
 ));
@@ -293,33 +310,5 @@ $amazonHttpClient = $squirtServiceBuilder->get('AMAZON_HTTP_CLIENT', array(
 preventing unecessary instantiation.  However, providing override parameters to the `get()` method
 disables that caching.  One can also disable caching via `get($serviceName,null,false)`.
 
-### Config file prefix
 
-As configuration files get larger and more complex, it may be useful to separate them into sets
-each with a given naming convention, so that it is easy to know which squirt service is configured
-in which configuration file, and to avoid name collisions.  Squirt configuration files support
-a prefix parameter, which is added to all services defined in that file.
-
-example:
-
-```php
-return array(
-    'prefix' => 'ADMIN',
-    'services' => array(
-        'APP' => array( /* ... */ ),
-        'LOADER' => array( /* ... */ )
-    )
-);
-```
-
-behaves the same as if one had instead used:
-
-```php
-return array(
-    'services' => array(
-        'ADMIN.APP' => array( /* ... */ ),
-        'ADMIN.LOADER' => array( /* ... */ )
-    )
-);
-```
 
