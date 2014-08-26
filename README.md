@@ -12,17 +12,20 @@ Why squirt?
 -----------
 
 * Provides all the benefits of [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection)
-* Separate configuration from code.  Squirt configuration files contain only configuration
-  (logins, connection timeouts, and which classes to instantiate and inject where) and no code,
-  while code contains only code, and no configuration.
+* Separate configuration from code.  Unlike most DI frameworks, which use a container object
+  and methods on it when doing configuration; all Squirt configuration is pure data.  This means
+  that it can be manipulated/merged like data, and there is no global object in the configuration.
+  Also, the factory code that constructs and configures instances of services is decoupled from
+  the configuration parameters, providing better testability and code reuse.
 * Keep your code DRY.  Service configurations can extend each other, to reduce repetition.
   Dependencies are automatically and recursively injected by name.
 * Supports three modes of injected parameter overrides:
   * Service configurations can extend and override each other, providing shared default parameters.
     One can also override the instantiated class with a subclass, if needed.
-  * Configuration files can include and override one another, providing clean package-level defaults which
-    one can override in application code, and integration test configurations that selectively
-    override things like logging and database connections.
+  * Configuration files can include and override one another
+    * organize your configuration, separate out related services
+    * make integration tests easy: include the production configuration and only override
+      what you need to.
   * End user code can provide selective overrides at instantiation time, to aid in ad-hoc configuration
     for testing (great for quick debug flags) and troubleshooting.
 * Make unit testing easier/possible.  Mock objects can be injected into instances when unit testing.
