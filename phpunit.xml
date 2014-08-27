@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="./vendor/phpunit/phpunit/phpunit.xsd"
+  backupGlobals="false"
+  bootstrap="./squirt/tests/bootstrap.php"
+  colors="true">
+    <testsuites>
+        <testsuite name="Application Test Suite">
+            <directory>squirt/tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
