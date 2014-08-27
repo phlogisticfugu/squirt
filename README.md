@@ -1,6 +1,8 @@
 squirt
 ======
 
+Master: [![Build Status](https://secure.travis-ci.org/phlogisticfugu/squirt.png?branch=master)](https://travis-ci.org/phlogisticfugu/squirt)
+
 Simple and lightweight PHP dependency injection with parameter overrides and more.
 
 It is inspired by the ServiceBuilder in [Guzzle 3](https://github.com/guzzle/guzzle3),
