@@ -2,3 +2,8 @@ composer.lock
 composer.phar
 autoload.php
 vendor/
+
+# Eclipse
+.buildpath
+.project
+.settings/
