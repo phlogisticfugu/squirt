@@ -329,4 +329,32 @@ class SquirtServiceBuilderTest extends \PHPUnit_Framework_TestCase
             )
         ), $squirtServiceBuilder->getConfig('CONTAINER'));
     }
+
+    public function testHas()
+    {
+        $squirtServiceBuilder = SquirtServiceBuilder::factory(array(
+            'config' => array(
+                'services' => array(
+                    'CONTAINER' => array(
+                        'class' => 'Squirt\Common\Container'
+                        ,'params' => array(
+                            'word' => 'phlogiston'
+                        )
+                    )
+                )
+            )
+        ));
+
+        $this->assertTrue($squirtServiceBuilder->has('CONTAINER'));
+        $this->assertFalse($squirtServiceBuilder->has('NOT_FOUND'));
+    }
+
+    /**
+     * @expectedException PHPUnit_Framework_Error
+     */
+    public function testHasInvalid()
+    {
+        $squirtServiceBuilder = SquirtServiceBuilder::factory();
+        $squirtServiceBuilder->has(array());
+    }
 }

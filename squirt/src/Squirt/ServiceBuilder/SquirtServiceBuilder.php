@@ -4,6 +4,7 @@ namespace Squirt\ServiceBuilder;
 use InvalidArgumentException;
 use RuntimeException;
 use LogicException;
+use Interop\Container\ContainerInterface;
 use Squirt\Exception\NoSuchServiceException;
 use Squirt\Common\SquirtableInterface;
 use Squirt\Common\SquirtableTrait;
@@ -18,7 +19,7 @@ use Squirt\ServiceBuilder\ServiceBuilderUtil;
  * Note that a SquirtServiceBuilder can itself be configured and injected
  * with dependancies and configuration
  */
-class SquirtServiceBuilder implements SquirtableInterface
+class SquirtServiceBuilder implements SquirtableInterface, ContainerInterface
 {
     use SquirtableTrait;
 
@@ -72,6 +73,17 @@ class SquirtServiceBuilder implements SquirtableInterface
             $this->serviceConfig = ServiceBuilderUtil::mergeConfig(
                 $this->serviceConfig, $serviceConfig);
         }
+    }
+
+    /**
+     * Returns true if the there is a service with the given name.
+     *
+     * @param string $serviceName
+     * @return boolean
+     */
+    public function has($serviceName)
+    {
+        return isset($this->serviceConfig[$serviceName]);
     }
 
     /**
