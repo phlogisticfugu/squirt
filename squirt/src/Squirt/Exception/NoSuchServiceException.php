@@ -1,5 +1,7 @@
 <?php
 namespace Squirt\Exception;
 
-class NoSuchServiceException extends \RuntimeException
+use Interop\Container\Exception\NotFoundException;
+
+class NoSuchServiceException extends \RuntimeException implements NotFoundException
 {}
